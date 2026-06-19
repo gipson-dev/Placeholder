@@ -1,0 +1,19 @@
+^XA
+^PW400
+^LL200
+^PR4
+^MD15
+^FO30,30
+^A0N,35,35
+^FDITEM: Test^FS
+^FO30,80
+^A0N,30,30
+^FDProgram talks to printer^FS
+^FO30,125
+^A0N,30,30
+^FDQTY: Quantity here^FS
+^FO30,160
+^BY2
+^BCN,50,Y,N,N
+^FDTest^FS
+^XZ

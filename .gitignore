@@ -6,6 +6,9 @@ Desktop.ini
 # Editor and IDE files
 .idea/
 .vscode/
+!.vscode/
+!.vscode/launch.json
+!.vscode/tasks.json
 *.swp
 *.swo
 
@@ -41,6 +44,28 @@ venv/
 # .NET output
 bin/
 obj/
+
+# C/C++ and MSVC output
+*.d
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.smod
+*.lai
+*.la
+*.a
+*.lib
+*.exe
+*.app
+*.ilk
+*.pdb
 
 # Java output
 target/

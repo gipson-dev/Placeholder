@@ -1,0 +1,39 @@
+{
+  "name": "Default Label",
+  "labelWidthDots": 400,
+  "labelHeightDots": 240,
+  "elements": [
+    {
+      "type": "Text",
+      "text": "ITEM: 123456",
+      "x": 30,
+      "y": 30,
+      "fontHeight": 35,
+      "fontWidth": 35,
+      "bold": true
+    },
+    {
+      "type": "Text",
+      "text": "PART A-100",
+      "x": 30,
+      "y": 80,
+      "fontHeight": 30,
+      "fontWidth": 30
+    },
+    {
+      "type": "Text",
+      "text": "QTY: 25",
+      "x": 30,
+      "y": 125,
+      "fontHeight": 30,
+      "fontWidth": 30
+    },
+    {
+      "type": "Barcode",
+      "text": "123456",
+      "x": 30,
+      "y": 170,
+      "barcodeHeight": 50
+    }
+  ]
+}
