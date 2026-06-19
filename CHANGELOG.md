@@ -12,3 +12,12 @@
 - Updated README content with layout, build, run, and template notes.
 - Expanded `.gitignore` for MSVC and build output files.
 - Improved printer error messages with Windows error codes.
+
+## 2026-06-19 - Phase 5 UI
+
+- Added a real Win32 `MainWindow`.
+- Added printer selection from installed Windows printers.
+- Added dynamic input fields generated from JSON element names.
+- Added a `PreviewWidget` that draws text and barcode elements.
+- Added Print and Save Template button behavior.
+- Changed the application entry point from console output to the Windows UI.

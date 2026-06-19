@@ -11,6 +11,7 @@ enum class LabelElementType
 struct LabelElement
 {
     LabelElementType type = LabelElementType::Text;
+    std::string name;
     std::string text;
 
     int x = 20;
@@ -25,6 +26,7 @@ struct LabelElement
     LabelElement() = default;
 
     static LabelElement Text(
+        const std::string& nameValue,
         const std::string& textValue,
         int xValue,
         int yValue,
@@ -35,6 +37,7 @@ struct LabelElement
     {
         LabelElement element;
         element.type = LabelElementType::Text;
+        element.name = nameValue;
         element.text = textValue;
         element.x = xValue;
         element.y = yValue;
@@ -45,6 +48,7 @@ struct LabelElement
     }
 
     static LabelElement Barcode(
+        const std::string& nameValue,
         const std::string& value,
         int xValue,
         int yValue,
@@ -53,6 +57,7 @@ struct LabelElement
     {
         LabelElement element;
         element.type = LabelElementType::Barcode;
+        element.name = nameValue;
         element.text = value;
         element.x = xValue;
         element.y = yValue;

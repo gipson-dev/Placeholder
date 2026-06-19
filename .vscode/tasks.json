@@ -9,11 +9,19 @@
                 "/EHsc",
                 "/nologo",
                 "/std:c++17",
+                "/DWIN32_LEAN_AND_MEAN",
+                "/DNOMINMAX",
                 "/I${workspaceFolder}\\include",
                 "/Fe${workspaceFolder}\\LabelPrinterApp.exe",
                 "${workspaceFolder}\\src\\main.cpp",
                 "${workspaceFolder}\\src\\ZebraPrinter.cpp",
-                "Winspool.lib"
+                "${workspaceFolder}\\src\\ui\\MainWindow.cpp",
+                "${workspaceFolder}\\src\\ui\\PreviewWidget.cpp",
+                "Gdi32.lib",
+                "User32.lib",
+                "Winspool.lib",
+                "/link",
+                "/SUBSYSTEM:WINDOWS"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
