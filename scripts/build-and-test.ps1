@@ -1,6 +1,7 @@
 param(
     [string]$Config = "Debug",
-    [string]$BuildDir = "build"
+    [string]$BuildDir = "build",
+    [string]$CMakePrefixPath = $env:CMAKE_PREFIX_PATH
 )
 
 $ErrorActionPreference = "Stop"
@@ -47,6 +48,20 @@ function Find-CMake {
     throw "Unable to find cmake.exe. Install CMake or Visual Studio with Desktop development with C++."
 }
 
+function Invoke-Native {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Arguments
+    )
+
+    & $FilePath @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "Command failed with exit code $LASTEXITCODE`: $FilePath $($Arguments -join ' ')"
+    }
+}
+
 function Clear-MsBuildTrackingLogs {
     param(
         [string]$BuildDir,
@@ -79,7 +94,11 @@ if (!(Test-Path $ctest)) {
 }
 
 Write-Host "Using CMake: $cmake"
-& $cmake -S . -B $BuildDir
+if ($CMakePrefixPath) {
+    Invoke-Native $cmake -S . -B $BuildDir -DCMAKE_PREFIX_PATH="$CMakePrefixPath"
+} else {
+    Invoke-Native $cmake -S . -B $BuildDir
+}
 Clear-MsBuildTrackingLogs -BuildDir $BuildDir -Config $Config
-& $cmake --build $BuildDir --config $Config
-& $ctest --test-dir $BuildDir -C $Config --output-on-failure
+Invoke-Native $cmake --build $BuildDir --config $Config
+Invoke-Native $ctest --test-dir $BuildDir -C $Config --output-on-failure

@@ -1,100 +1,73 @@
 # LabelPrinterApp
 
-LabelPrinterApp is a small Windows C++ app for editing Zebra Programming Language (ZPL) label values, previewing the label, saving the template, and sending it to a Zebra printer through the WinSpool RAW print path.
+LabelPrinterApp is a Windows C++17 Qt 6 desktop application for designing and printing Zebra ZPL labels. It targets 2.25 x 0.75 inch direct thermal removable adhesive labels on Zebra ZD410-class printers using the Windows RAW spooler path.
 
-The current UI loads the default JSON template, creates editable fields for label values and layout, draws a live preview, lists installed Windows printers, and prints one or more generated ZPL labels to the selected printer.
+## Version 5 Features
+
+- 203 DPI and 300 DPI label sizing with width, height, margins, gap, sensing mode, orientation, darkness, speed, and copies.
+- Multiple editable label elements: text, Code 128, Code 39, and QR.
+- Text formatting: font selection, font size, bold, italic, underline, rotation, alignment, multiline wrapping, fixed fields, variable fields, prefix/suffix, and auto-fit metadata.
+- Qt GUI with printer selection, template load/save, element add/edit/delete, live preview, and drag-to-move element positioning.
+- Placeholder replacement with `{ItemNumber}` syntax plus `{Date}`, `{Time}`, `{DateTime}`, `{Serial}`, and `{RecordIndex}`.
+- Prompt-at-print values, serial ranges, CSV import, header detection, row preview, selected/all row printing, and quantity per row through `Quantity` or `Qty`.
+- RAW ZPL printing through `OpenPrinterA`, `StartDocPrinterA`, `WritePrinter`, and `ClosePrinter`.
 
 ## Project Layout
 
 ```text
-docs/                     Roadmap and planning notes
-include/LabelPrinterApp/  Public app headers and label model types
-src/                      Application entry point and printer implementation
-src/ui/                   Win32 main window and preview widget
-templates/                JSON template examples
-tests/                    Portable tests for model, storage, and ZPL generation
-.github/workflows/        GitHub Actions build checks
+core/                 Label model, CSV import, variables, JSON storage, ZPL generation, RAW printing
+ui/                   Qt MainWindow, PreviewWidget, and ElementEditorWidget
+templates/            Default JSON template
+examples/             Sample CSV data
+docs/                 Architecture notes and example generated ZPL
+tests/                Core model/ZPL/storage tests
+.github/workflows/    Windows CI build
 ```
+
+The full architecture is documented in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Requirements
 
 - Windows
-- Visual Studio 2022 or newer with MSVC C++ tools
-- CMake 3.20 or newer, if using the CMake build path
-- Installed Zebra printer driver configured for ZPL/RAW printing
+- Visual Studio 2022 or newer with Desktop development with C++
+- CMake 3.20 or newer
+- Qt 6 Widgets for MSVC 64-bit
+- Zebra printer driver configured for ZPL/RAW output
 
-## Build
+`nlohmann/json` is resolved by CMake. If it is not installed, CMake fetches version 3.11.3 by default.
 
-From a Developer PowerShell or Developer Command Prompt with MSVC on `PATH`:
+## Build In Visual Studio
 
-```powershell
-cl.exe /Zi /EHsc /nologo /std:c++17 /Iinclude /FeLabelPrinterApp.exe src/main.cpp src/ZebraPrinter.cpp src/ui/MainWindow.cpp src/ui/PreviewWidget.cpp Gdi32.lib User32.lib Winspool.lib /link /SUBSYSTEM:WINDOWS
-```
-
-Or use CMake:
+Set `CMAKE_PREFIX_PATH` to your Qt install path, then configure and build:
 
 ```powershell
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
+$env:CMAKE_PREFIX_PATH = "C:\Qt\6.7.3\msvc2022_64"
+.\scripts\build-and-test.ps1 -Config Release
 ```
 
-If CMake/MSVC are installed with Visual Studio but not available on `PATH`, use the repo helper:
+Or run CMake directly:
 
 ```powershell
-.\scripts\build-and-test.ps1
+cmake -S . -B build -DCMAKE_PREFIX_PATH=C:\Qt\6.7.3\msvc2022_64
+cmake --build build --config Release
+ctest --test-dir build -C Release --output-on-failure
 ```
-
-## Run
-
-Run the app and select the installed Windows printer from the printer list:
-
-```powershell
-.\LabelPrinterApp.exe
-```
-
-## Current UI
-
-- Printer selection from installed Windows printers
-- Template actions for creating a new template, reloading the saved template, and saving edits
-- Dynamic element inputs generated from `templates/default_label.json`
-- Editable value, X/Y position, text size, bold, italic, underline, wrap, rotation, alignment, barcode height, human-readable barcode text, and barcode symbology fields
-- Printer and media setting inputs for darkness, print speed, label width, label height, margins, media gap, sensing mode, orientation, and copy count
-- Live label preview with a dot grid, element outlines, text, barcode approximation, and drag-to-move positioning
-- Validation before saving or printing
-- Print button that sends generated ZPL batches to the selected printer
-- Save Template button that writes edited values back to JSON
-- In-memory print history with success/failure status
-
-## Label Templates
-
-The in-code fallback label lives in `include/LabelPrinterApp/TemplateStorage.h`.
-
-`templates/default_label.json` is loaded at startup and saved when the Save Template button is clicked. Element names in that JSON file become the editable input labels in the UI. Element types currently supported by the generator are:
-
-- `Text`
-- `Barcode`
-
-Each element also has a `fieldKey` for stable storage/batch-print mapping and an `editable` flag for UI behavior.
-Barcode elements support `Code128` and `Code39`, `barcodeModuleWidth`, `barcodeHeight`, and `barcodeHumanReadable`.
-Text elements support font name, font size, bold, italic, underline, rotation, alignment, multi-line wrapping, variable/fixed field metadata, and auto-fit metadata.
-Invalid template files fall back to the in-code default, and invalid templates are not saved.
 
 ## Package
 
-Build a release EXE bundle with:
-
 ```powershell
-.\scripts\package-release.ps1
+.\scripts\package-release.ps1 -Config Release
 ```
 
-The package is written to `dist\LabelPrinterApp` with the EXE, default template, README, and license.
+The package is written to `dist\LabelPrinterApp`. If `windeployqt.exe` is on `PATH` or under `CMAKE_PREFIX_PATH\bin`, the script copies the Qt runtime files.
 
-## Notes
+## Print A Test Label
 
-- Generated build artifacts such as `.exe`, `.obj`, `.pdb`, and `.ilk` files are ignored.
-- Printer failures include the Windows error code where available.
+1. Connect the Zebra printer and confirm the Windows driver is installed.
+2. Launch `build\Release\LabelPrinterApp.exe`.
+3. Select the Zebra printer.
+4. Confirm DPI, label width `2.25`, label height `0.75`, and media sensing mode.
+5. Import `examples\sample_items.csv` or print the current template and enter prompted values.
+6. Print one label and adjust X/Y, margins, darkness, or speed if the label is not aligned.
 
-## Roadmap
-
-The phased implementation plan is tracked in [docs/ROADMAP.md](docs/ROADMAP.md).
+Example ZPL is available in [docs/example_generated.zpl](docs/example_generated.zpl).

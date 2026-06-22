@@ -19,10 +19,33 @@ if (Test-Path $OutputDir) {
 
 New-Item -ItemType Directory -Path $OutputDir | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $OutputDir "templates") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $OutputDir "examples") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $OutputDir "docs") | Out-Null
 
 Copy-Item -LiteralPath $exePath -Destination (Join-Path $OutputDir "LabelPrinterApp.exe")
 Copy-Item -LiteralPath "templates\default_label.json" -Destination (Join-Path $OutputDir "templates\default_label.json")
+Copy-Item -LiteralPath "examples\sample_items.csv" -Destination (Join-Path $OutputDir "examples\sample_items.csv")
+Copy-Item -LiteralPath "docs\ARCHITECTURE.md" -Destination (Join-Path $OutputDir "docs\ARCHITECTURE.md")
+Copy-Item -LiteralPath "docs\example_generated.zpl" -Destination (Join-Path $OutputDir "docs\example_generated.zpl")
 Copy-Item -LiteralPath "README.md" -Destination (Join-Path $OutputDir "README.md")
 Copy-Item -LiteralPath "LICENSE" -Destination (Join-Path $OutputDir "LICENSE")
+
+$windeployqt = $null
+$windeployqtCommand = Get-Command windeployqt.exe -ErrorAction SilentlyContinue
+if ($windeployqtCommand) {
+    $windeployqt = $windeployqtCommand.Source
+}
+if (!$windeployqt -and $env:CMAKE_PREFIX_PATH) {
+    $candidate = Join-Path $env:CMAKE_PREFIX_PATH "bin\windeployqt.exe"
+    if (Test-Path $candidate) {
+        $windeployqt = $candidate
+    }
+}
+
+if ($windeployqt) {
+    & $windeployqt (Join-Path $OutputDir "LabelPrinterApp.exe")
+} else {
+    Write-Warning "windeployqt.exe was not found. Copy Qt runtime DLLs manually or add Qt bin to PATH."
+}
 
 Write-Host "Packaged release to $OutputDir"

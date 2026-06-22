@@ -28,6 +28,7 @@ vendor/
 # Build and cache output
 dist/
 build/
+build-*/
 out/
 coverage/
 .cache/

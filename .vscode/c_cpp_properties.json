@@ -3,9 +3,10 @@
         {
             "name": "Windows",
             "includePath": [
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/src",
-                "${workspaceFolder}/src/ui"
+                "${workspaceFolder}",
+                "${workspaceFolder}/core",
+                "${workspaceFolder}/ui",
+                "${env:CMAKE_PREFIX_PATH}/include"
             ],
             "defines": [
                 "WIN32_LEAN_AND_MEAN",

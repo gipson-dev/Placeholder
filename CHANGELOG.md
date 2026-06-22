@@ -2,6 +2,14 @@
 
 ## 2026-06-21
 
+- Rebuilt the application structure around the requested Qt 6 Version 5 architecture with root-level `core/`, `ui/`, `main.cpp`, `templates/`, and `examples/`.
+- Added CSV import, header detection, placeholder mapping, CSV record preview, selected/all row printing, and quantity-per-row handling.
+- Added prompt-at-print placeholder resolution, date/time placeholders, auto-increment serial contexts, prefix/suffix formatting, and serial range printing.
+- Added Code 128, Code 39, and QR ZPL generation in the new core generator.
+- Added Qt Widgets UI wiring for template load/save, printer selection, element add/edit/delete, formatting controls, preview, and drag-to-move positioning.
+- Replaced the obsolete Win32 prototype source tree with the Qt 6 application layout to avoid stale include errors.
+- Added `docs/ARCHITECTURE.md`, `docs/example_generated.zpl`, and `examples/sample_items.csv`.
+- Updated CI to install Qt, build the application, and run CTest.
 - Added Phase 15 advanced formatting foundations: margins, media gap, gap/black-mark/continuous sensing, orientation, font name, bold, italic, underline, rotation, alignment, wrapping, multi-line text, variable/fixed text metadata, and auto-fit metadata.
 - Added Phase 16 drag-and-drop preview movement for label elements and fixed preview text vertical positioning.
 - Added Phase 17 packaging support with `scripts/package-release.ps1` for a release EXE bundle under `dist\LabelPrinterApp`.
