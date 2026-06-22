@@ -61,7 +61,7 @@ The default template is [templates/default_label.json](templates/default_label.j
 - A Code 128 barcode encoding `226026-K-003`
 - A QR code with the item, lot, and date
 
-The `templates/` folder also includes ready-made samples for inventory labels, shelf/bin labels, QR asset tags, serial-number labels, price labels, and mini shipping labels. Open the `Templates` tab and double-click a template to load it. The bundled barcode templates use Code 128 for inventory-style values such as `226026-K-003`.
+The `templates/` folder also includes ready-made samples for inventory labels, shelf/bin labels, QR asset tags, serial-number labels, price labels, mini shipping labels, and a photo-inspired work center dispatch label. Open the `Templates` tab and double-click a template to load it. The bundled barcode templates use Code 128 for inventory-style values such as `226026-K-003`.
 
 ## Building From Source
 

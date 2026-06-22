@@ -22,6 +22,21 @@ double safeLabelHeight(const LabelTemplate& labelTemplate)
     return std::max(0.1, labelTemplate.settings.labelHeightInches);
 }
 
+int rotationDegrees(ElementRotation rotation)
+{
+    switch (rotation)
+    {
+    case ElementRotation::Deg90:
+        return 90;
+    case ElementRotation::Deg180:
+        return 180;
+    case ElementRotation::Deg270:
+        return 270;
+    default:
+        return 0;
+    }
+}
+
 std::vector<int> code128Modules(const std::string& value)
 {
     static const std::array<const char*, 107> patterns = {
@@ -318,6 +333,14 @@ void PreviewWidget::drawTextElement(QPainter& painter, const LabelElement& eleme
     font.setUnderline(element.underline);
 
     painter.save();
+    const int degrees = rotationDegrees(element.rotation);
+    if (degrees != 0)
+    {
+        const QPointF center = box.center();
+        painter.translate(center);
+        painter.rotate(degrees);
+        box.moveCenter(QPointF(0, 0));
+    }
     painter.setFont(font);
     QFontMetrics metrics(font);
     box.setHeight(std::max(box.height(), static_cast<double>(metrics.height() + 10)));
@@ -353,6 +376,15 @@ void PreviewWidget::drawBarcodeElement(QPainter& painter, const LabelElement& el
     double barHeight = element.barcodeHeightDots / static_cast<double>(template_.settings.dpi) * (label.height() / safeLabelHeight(template_));
     QRectF bars = QRectF(box.left(), box.top(), box.width(), std::min(box.height(), std::max(18.0, barHeight)));
     painter.save();
+    const int degrees = rotationDegrees(element.rotation);
+    if (degrees != 0)
+    {
+        const QPointF center = box.center();
+        painter.translate(center);
+        painter.rotate(degrees);
+        box.moveCenter(QPointF(0, 0));
+        bars = QRectF(box.left(), box.top(), box.width(), std::min(box.height(), std::max(18.0, barHeight)));
+    }
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::black);
     if (element.type == LabelElementType::Code128Barcode)

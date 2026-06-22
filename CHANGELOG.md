@@ -6,6 +6,8 @@
 - Improved the visual barcode preview so Code 128 bars are generated from the encoded value instead of decorative placeholder stripes.
 - Changed the element font size editor to a preset dropdown.
 - Added an Installed Printer selector row with a Refresh button in the print settings panel.
+- Added a photo-inspired work center dispatch template with rotated text, the item number `226026-K-003`, description text, date/time fields, and a Code 128 barcode.
+- Improved preview rendering for rotated text and barcode elements.
 
 ## 2026-06-21
 
