@@ -38,6 +38,7 @@ private:
     QWidget* buildPrinterSettingsPanel(QWidget* parent);
     void refreshPrinterList();
     void refreshElementList();
+    void refreshTemplateLibrary();
     void refreshSettingsControls();
     void refreshPreview();
     void loadDefaultTemplate();
@@ -48,6 +49,8 @@ private:
     void moveSelectedElement(int offset);
     void saveTemplate();
     void loadTemplate();
+    void loadTemplateFromPath(const QString& path);
+    void loadSelectedLibraryTemplate();
     void importCsv();
     void configureCsvMapping();
     void previewSelectedCsvRecord();
@@ -73,6 +76,7 @@ private:
     PreviewWidget* preview_ = nullptr;
     ElementEditorWidget* editor_ = nullptr;
     QListWidget* elementList_ = nullptr;
+    QListWidget* templateList_ = nullptr;
     QComboBox* printerCombo_ = nullptr;
     QSpinBox* dpiSpin_ = nullptr;
     QDoubleSpinBox* widthSpin_ = nullptr;

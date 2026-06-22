@@ -61,6 +61,8 @@ The default template is [templates/default_label.json](templates/default_label.j
 - A Code 128 barcode using `{ItemNumber}`
 - A QR code using `{ItemNumber}`, `{Lot}`, and `{Date}`
 
+The `templates/` folder also includes ready-made samples for inventory labels, shelf/bin labels, QR asset tags, serial-number labels, price labels, and mini shipping labels. Open the `Templates` tab and double-click a template to load it.
+
 ## Building From Source
 
 Requirements:

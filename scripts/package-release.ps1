@@ -23,7 +23,7 @@ New-Item -ItemType Directory -Path (Join-Path $OutputDir "examples") | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $OutputDir "docs") | Out-Null
 
 Copy-Item -LiteralPath $exePath -Destination (Join-Path $OutputDir "LabelPrinterApp.exe")
-Copy-Item -LiteralPath "templates\default_label.json" -Destination (Join-Path $OutputDir "templates\default_label.json")
+Copy-Item -Path "templates\*.json" -Destination (Join-Path $OutputDir "templates")
 Copy-Item -LiteralPath "examples\sample_items.csv" -Destination (Join-Path $OutputDir "examples\sample_items.csv")
 Copy-Item -LiteralPath "docs\ARCHITECTURE.md" -Destination (Join-Path $OutputDir "docs\ARCHITECTURE.md")
 Copy-Item -LiteralPath "docs\example_generated.zpl" -Destination (Join-Path $OutputDir "docs\example_generated.zpl")

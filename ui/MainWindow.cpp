@@ -4,8 +4,10 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -332,10 +334,9 @@ QWidget* MainWindow::buildTemplatesTab()
 {
     auto* tab = new QWidget(this);
     auto* layout = new QVBoxLayout(tab);
-    auto* list = new QListWidget(tab);
-    list->addItems({"Default 2.25 x 0.75 Item Label", "Small Inventory Label", "Barcode Shelf Label", "QR Code Asset Label", "Serial Number Label"});
+    templateList_ = new QListWidget(tab);
     layout->addWidget(new QLabel("Template Library", tab));
-    layout->addWidget(list, 1);
+    layout->addWidget(templateList_, 1);
 
     auto* buttons = new QHBoxLayout;
     auto* newButton = new QPushButton("New Template", tab);
@@ -352,7 +353,7 @@ QWidget* MainWindow::buildTemplatesTab()
     layout->addLayout(buttons);
 
     connect(newButton, &QPushButton::clicked, this, &MainWindow::newTemplate);
-    connect(loadButton, &QPushButton::clicked, this, &MainWindow::loadTemplate);
+    connect(loadButton, &QPushButton::clicked, this, &MainWindow::loadSelectedLibraryTemplate);
     connect(saveButton, &QPushButton::clicked, this, &MainWindow::saveTemplate);
     connect(deleteButton, &QPushButton::clicked, this, [this] {
         QMessageBox::information(this, "Template Library", "Template deletion from the library will be added with persistent template indexing.");
@@ -360,6 +361,8 @@ QWidget* MainWindow::buildTemplatesTab()
     connect(defaultButton, &QPushButton::clicked, this, [this] {
         QMessageBox::information(this, "Template Library", "The current template can be saved as templates/default_label.json to make it the startup default.");
     });
+    connect(templateList_, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem*) { loadSelectedLibraryTemplate(); });
+    refreshTemplateLibrary();
     return tab;
 }
 
@@ -467,6 +470,25 @@ void MainWindow::refreshElementList()
     for (const LabelElement& element : labelTemplate_.elements)
     {
         elementList_->addItem(QString::fromStdString(element.name));
+    }
+}
+
+void MainWindow::refreshTemplateLibrary()
+{
+    if (!templateList_)
+    {
+        return;
+    }
+
+    templateList_->clear();
+    QDir dir("templates");
+    const QFileInfoList files = dir.entryInfoList({"*.json"}, QDir::Files, QDir::Name);
+    for (const QFileInfo& file : files)
+    {
+        LabelTemplate label = TemplateStorage::load(file.filePath().toStdString());
+        auto* item = new QListWidgetItem(QString::fromStdString(label.name), templateList_);
+        item->setData(Qt::UserRole, file.filePath());
+        item->setToolTip(file.filePath());
     }
 }
 
@@ -604,17 +626,34 @@ void MainWindow::saveTemplate()
     {
         QMessageBox::warning(this, "Save Failed", QString::fromStdString(error));
     }
+    refreshTemplateLibrary();
 }
 
 void MainWindow::loadTemplate()
 {
     QString path = QFileDialog::getOpenFileName(this, "Load Template", "templates", "JSON (*.json)");
     if (path.isEmpty()) return;
+    loadTemplateFromPath(path);
+}
+
+void MainWindow::loadTemplateFromPath(const QString& path)
+{
     labelTemplate_ = TemplateStorage::load(path.toStdString());
     refreshSettingsControls();
     refreshElementList();
     selectElement(labelTemplate_.elements.empty() ? -1 : 0);
     refreshPreview();
+}
+
+void MainWindow::loadSelectedLibraryTemplate()
+{
+    if (!templateList_ || !templateList_->currentItem())
+    {
+        QMessageBox::information(this, "Template Library", "Select a template first.");
+        return;
+    }
+
+    loadTemplateFromPath(templateList_->currentItem()->data(Qt::UserRole).toString());
 }
 
 void MainWindow::importCsv()

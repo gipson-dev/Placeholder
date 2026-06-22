@@ -2,6 +2,7 @@
 
 ## 2026-06-21
 
+- Added sample template labels for inventory, shelf/bin, QR asset tags, serial numbers, price labels, and mini shipping labels, and wired the Templates tab to load JSON templates from disk.
 - Fixed preview visibility by scaling text, barcodes, QR codes, and sample placeholder values to the on-screen label size.
 - Reworked the main window into the requested tab layout with File/Edit/View/Printer/Templates/Help menus, a main toolbar, and Design, Elements, Data, Print, Templates, and Settings tabs.
 - Added tab-level actions for duplicate, move up/down, CSV record preview, ZPL preview, and test-label printing.
