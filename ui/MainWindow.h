@@ -9,6 +9,7 @@
 
 class QComboBox;
 class QDoubleSpinBox;
+class QLabel;
 class QLineEdit;
 class QListWidget;
 class QPushButton;
@@ -36,6 +37,8 @@ private:
     QWidget* buildTemplatesTab();
     QWidget* buildSettingsTab();
     QWidget* buildPrinterSettingsPanel(QWidget* parent);
+    void applyStockPreset(int index);
+    void updateCalculatedSizeLabels();
     void refreshPrinterList();
     void refreshElementList();
     void refreshTemplateLibrary();
@@ -78,13 +81,18 @@ private:
     QListWidget* elementList_ = nullptr;
     QListWidget* templateList_ = nullptr;
     QComboBox* printerCombo_ = nullptr;
-    QSpinBox* dpiSpin_ = nullptr;
+    QComboBox* stockPresetCombo_ = nullptr;
+    QComboBox* dpiCombo_ = nullptr;
     QDoubleSpinBox* widthSpin_ = nullptr;
     QDoubleSpinBox* heightSpin_ = nullptr;
     QDoubleSpinBox* marginLeftSpin_ = nullptr;
     QDoubleSpinBox* marginTopSpin_ = nullptr;
     QDoubleSpinBox* gapSpin_ = nullptr;
     QComboBox* mediaCombo_ = nullptr;
+    QComboBox* printMethodCombo_ = nullptr;
+    QComboBox* coreSizeCombo_ = nullptr;
+    QLabel* widthDotsLabel_ = nullptr;
+    QLabel* heightDotsLabel_ = nullptr;
     QComboBox* orientationCombo_ = nullptr;
     QSpinBox* speedSpin_ = nullptr;
     QSpinBox* darknessSpin_ = nullptr;

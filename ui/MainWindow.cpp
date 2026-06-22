@@ -60,8 +60,8 @@ void MainWindow::buildUi()
     tabs_->addTab(buildDesignTab(), "Design");
     tabs_->addTab(buildElementsTab(), "Elements");
     tabs_->addTab(buildDataTab(), "Data");
-    tabs_->addTab(buildPrintTab(), "Print");
     tabs_->addTab(buildTemplatesTab(), "Templates");
+    tabs_->addTab(buildPrintTab(), "Print");
     tabs_->addTab(buildSettingsTab(), "Settings");
     setCentralWidget(tabs_);
 
@@ -89,7 +89,7 @@ void MainWindow::buildUi()
     });
 
     const auto settingsChanged = [this] { updateTemplateFromSettings(); refreshPreview(); };
-    for (QSpinBox* spin : {dpiSpin_, speedSpin_, darknessSpin_, copiesSpin_})
+    for (QSpinBox* spin : {speedSpin_, darknessSpin_, copiesSpin_})
     {
         connect(spin, &QSpinBox::valueChanged, this, settingsChanged);
     }
@@ -97,9 +97,11 @@ void MainWindow::buildUi()
     {
         connect(spin, &QDoubleSpinBox::valueChanged, this, settingsChanged);
     }
+    connect(dpiCombo_, &QComboBox::currentIndexChanged, this, settingsChanged);
     connect(mediaCombo_, &QComboBox::currentIndexChanged, this, settingsChanged);
     connect(orientationCombo_, &QComboBox::currentIndexChanged, this, settingsChanged);
     connect(printerCombo_, &QComboBox::currentIndexChanged, this, settingsChanged);
+    connect(stockPresetCombo_, &QComboBox::currentIndexChanged, this, &MainWindow::applyStockPreset);
 }
 
 void MainWindow::buildMenus()
@@ -296,7 +298,21 @@ QWidget* MainWindow::buildPrintTab()
 {
     auto* tab = new QWidget(this);
     auto* layout = new QVBoxLayout(tab);
-    layout->addWidget(buildPrinterSettingsPanel(tab));
+
+    auto* job = new QGroupBox("Print Job", tab);
+    auto* jobLayout = new QFormLayout(job);
+    copiesSpin_ = new QSpinBox(job);
+    copiesSpin_->setRange(1, 9999);
+    serialStartSpin_ = new QSpinBox(job);
+    serialStartSpin_->setRange(0, 999999999);
+    serialStartSpin_->setValue(1);
+    serialEndSpin_ = new QSpinBox(job);
+    serialEndSpin_->setRange(0, 999999999);
+    serialEndSpin_->setValue(1);
+    jobLayout->addRow("Copies", copiesSpin_);
+    jobLayout->addRow("Serial Start", serialStartSpin_);
+    jobLayout->addRow("Serial End", serialEndSpin_);
+    layout->addWidget(job);
 
     auto* options = new QGroupBox("Options", tab);
     auto* optionsLayout = new QVBoxLayout(options);
@@ -371,14 +387,7 @@ QWidget* MainWindow::buildSettingsTab()
 {
     auto* tab = new QWidget(this);
     auto* layout = new QVBoxLayout(tab);
-    auto* form = new QFormLayout;
-    form->addRow("Default Printer", new QLabel("Uses the selected Windows printer from the Print tab.", tab));
-    form->addRow("Default DPI", new QLabel("203", tab));
-    form->addRow("Default Width", new QLabel("2.25 inches", tab));
-    form->addRow("Default Height", new QLabel("0.75 inches", tab));
-    form->addRow("Template Folder", new QLabel("templates/", tab));
-    form->addRow("CSV Folder", new QLabel("examples/", tab));
-    layout->addLayout(form);
+    layout->addWidget(buildPrinterSettingsPanel(tab));
 
     auto* buttons = new QHBoxLayout;
     auto* saveButton = new QPushButton("Save Settings", tab);
@@ -398,12 +407,21 @@ QWidget* MainWindow::buildSettingsTab()
 
 QWidget* MainWindow::buildPrinterSettingsPanel(QWidget* parent)
 {
-    auto* group = new QGroupBox("Printer Settings", parent);
+    auto* group = new QGroupBox("Label Stock", parent);
     auto* settingsLayout = new QFormLayout(group);
 
+    stockPresetCombo_ = new QComboBox(group);
+    stockPresetCombo_->addItems({
+        "Custom",
+        "Uline S-8599 - 2.25\" x 0.75\" Direct Thermal",
+        "Uline S-22422 - 2.25\" x 0.75\" Removable Direct Thermal",
+        "Zebra 2.25\" x 0.75\" Generic",
+        "Zebra ZD620 - 4\" x 2\" Direct Thermal"
+    });
     printerCombo_ = new QComboBox(group);
-    dpiSpin_ = new QSpinBox(group);
-    dpiSpin_->setRange(100, 600);
+    dpiCombo_ = new QComboBox(group);
+    dpiCombo_->addItem("203", 203);
+    dpiCombo_->addItem("300", 300);
     widthSpin_ = new QDoubleSpinBox(group);
     heightSpin_ = new QDoubleSpinBox(group);
     marginLeftSpin_ = new QDoubleSpinBox(group);
@@ -421,44 +439,97 @@ QWidget* MainWindow::buildPrinterSettingsPanel(QWidget* parent)
     marginTopSpin_->setRange(0.0, 10.0);
     gapSpin_->setRange(0.0, 10.0);
     mediaCombo_ = new QComboBox(group);
-    mediaCombo_->addItems({"Gap", "Black mark", "Continuous"});
+    mediaCombo_->addItems({"Gap Labels", "Black Mark Labels", "Continuous Media"});
+    printMethodCombo_ = new QComboBox(group);
+    printMethodCombo_->addItems({"Direct Thermal", "Thermal Transfer"});
+    coreSizeCombo_ = new QComboBox(group);
+    coreSizeCombo_->addItems({"1.0\"", "0.5\"", "3.0\""});
+    widthDotsLabel_ = new QLabel(group);
+    heightDotsLabel_ = new QLabel(group);
     orientationCombo_ = new QComboBox(group);
     orientationCombo_->addItems({"Portrait", "Landscape"});
     speedSpin_ = new QSpinBox(group);
     speedSpin_->setRange(1, 14);
     darknessSpin_ = new QSpinBox(group);
     darknessSpin_->setRange(0, 30);
-    copiesSpin_ = new QSpinBox(group);
-    copiesSpin_->setRange(1, 9999);
-    serialStartSpin_ = new QSpinBox(group);
-    serialStartSpin_->setRange(0, 999999999);
-    serialStartSpin_->setValue(1);
-    serialEndSpin_ = new QSpinBox(group);
-    serialEndSpin_->setRange(0, 999999999);
-    serialEndSpin_->setValue(1);
-
+    settingsLayout->addRow("Preset", stockPresetCombo_);
     auto* printerRow = new QWidget(group);
     auto* printerRowLayout = new QHBoxLayout(printerRow);
     printerRowLayout->setContentsMargins(0, 0, 0, 0);
     auto* refreshPrintersButton = new QPushButton("Refresh", printerRow);
     printerRowLayout->addWidget(printerCombo_, 1);
     printerRowLayout->addWidget(refreshPrintersButton);
-    settingsLayout->addRow("Installed Printer", printerRow);
-    settingsLayout->addRow("DPI", dpiSpin_);
+    settingsLayout->addRow("Default Printer", printerRow);
     settingsLayout->addRow("Width", widthSpin_);
     settingsLayout->addRow("Height", heightSpin_);
+    settingsLayout->addRow("Media Type", mediaCombo_);
+    settingsLayout->addRow("Print Method", printMethodCombo_);
+    settingsLayout->addRow("Core Size", coreSizeCombo_);
+    settingsLayout->addRow("DPI", dpiCombo_);
+    settingsLayout->addRow("Calculated Width", widthDotsLabel_);
+    settingsLayout->addRow("Calculated Height", heightDotsLabel_);
     settingsLayout->addRow("Left Margin", marginLeftSpin_);
     settingsLayout->addRow("Top Margin", marginTopSpin_);
     settingsLayout->addRow("Gap", gapSpin_);
-    settingsLayout->addRow("Sensing", mediaCombo_);
     settingsLayout->addRow("Orientation", orientationCombo_);
     settingsLayout->addRow("Speed", speedSpin_);
     settingsLayout->addRow("Darkness", darknessSpin_);
-    settingsLayout->addRow("Copies", copiesSpin_);
-    settingsLayout->addRow("Serial Start", serialStartSpin_);
-    settingsLayout->addRow("Serial End", serialEndSpin_);
     connect(refreshPrintersButton, &QPushButton::clicked, this, &MainWindow::refreshPrinterList);
+    updateCalculatedSizeLabels();
     return group;
+}
+
+void MainWindow::applyStockPreset(int index)
+{
+    if (index <= 0)
+    {
+        updateCalculatedSizeLabels();
+        return;
+    }
+
+    QSignalBlocker widthBlocker(widthSpin_);
+    QSignalBlocker heightBlocker(heightSpin_);
+    QSignalBlocker mediaBlocker(mediaCombo_);
+    QSignalBlocker methodBlocker(printMethodCombo_);
+    QSignalBlocker coreBlocker(coreSizeCombo_);
+    QSignalBlocker dpiBlocker(dpiCombo_);
+
+    if (index == 4)
+    {
+        widthSpin_->setValue(4.0);
+        heightSpin_->setValue(2.0);
+    }
+    else
+    {
+        widthSpin_->setValue(2.25);
+        heightSpin_->setValue(0.75);
+    }
+
+    mediaCombo_->setCurrentIndex(static_cast<int>(MediaSensingMode::Gap));
+    printMethodCombo_->setCurrentIndex(0);
+    coreSizeCombo_->setCurrentIndex(0);
+    int dpiIndex = dpiCombo_->findData(203);
+    if (dpiIndex >= 0)
+    {
+        dpiCombo_->setCurrentIndex(dpiIndex);
+    }
+
+    updateTemplateFromSettings();
+    refreshPreview();
+}
+
+void MainWindow::updateCalculatedSizeLabels()
+{
+    if (!widthDotsLabel_ || !heightDotsLabel_ || !dpiCombo_)
+    {
+        return;
+    }
+
+    const int dpi = dpiCombo_->currentData().toInt();
+    const int widthDots = static_cast<int>(widthSpin_->value() * dpi + 0.5);
+    const int heightDots = static_cast<int>(heightSpin_->value() * dpi + 0.5);
+    widthDotsLabel_->setText(QString("%1 dots").arg(widthDots));
+    heightDotsLabel_->setText(QString("%1 dots").arg(heightDots));
 }
 
 void MainWindow::refreshPrinterList()
@@ -513,7 +584,8 @@ void MainWindow::refreshTemplateLibrary()
 void MainWindow::refreshSettingsControls()
 {
     const PrinterSettings s = labelTemplate_.settings;
-    QSignalBlocker dpiBlocker(dpiSpin_);
+    QSignalBlocker presetBlocker(stockPresetCombo_);
+    QSignalBlocker dpiBlocker(dpiCombo_);
     QSignalBlocker widthBlocker(widthSpin_);
     QSignalBlocker heightBlocker(heightSpin_);
     QSignalBlocker marginLeftBlocker(marginLeftSpin_);
@@ -525,7 +597,24 @@ void MainWindow::refreshSettingsControls()
     QSignalBlocker darknessBlocker(darknessSpin_);
     QSignalBlocker copiesBlocker(copiesSpin_);
 
-    dpiSpin_->setValue(s.dpi);
+    int presetIndex = 0;
+    if (std::abs(s.labelWidthInches - 4.0) < 0.001 && std::abs(s.labelHeightInches - 2.0) < 0.001)
+    {
+        presetIndex = 4;
+    }
+    else if (std::abs(s.labelWidthInches - 2.25) < 0.001 && std::abs(s.labelHeightInches - 0.75) < 0.001)
+    {
+        presetIndex = 1;
+    }
+    stockPresetCombo_->setCurrentIndex(presetIndex);
+
+    int dpiIndex = dpiCombo_->findData(s.dpi);
+    if (dpiIndex < 0)
+    {
+        dpiCombo_->addItem(QString::number(s.dpi), s.dpi);
+        dpiIndex = dpiCombo_->findData(s.dpi);
+    }
+    dpiCombo_->setCurrentIndex(dpiIndex);
     widthSpin_->setValue(std::max(0.1, s.labelWidthInches));
     heightSpin_->setValue(std::max(0.1, s.labelHeightInches));
     marginLeftSpin_->setValue(s.marginLeftInches);
@@ -541,6 +630,7 @@ void MainWindow::refreshSettingsControls()
     {
         printerCombo_->setCurrentIndex(printerIndex);
     }
+    updateCalculatedSizeLabels();
 }
 
 void MainWindow::refreshPreview()
@@ -869,7 +959,7 @@ void MainWindow::updateTemplateFromSettings()
 {
     PrinterSettings& s = labelTemplate_.settings;
     s.printerName = printerCombo_->currentText().toStdString();
-    s.dpi = dpiSpin_->value();
+    s.dpi = dpiCombo_->currentData().toInt();
     s.labelWidthInches = std::max(0.1, widthSpin_->value());
     s.labelHeightInches = std::max(0.1, heightSpin_->value());
     s.marginLeftInches = marginLeftSpin_->value();
@@ -880,6 +970,7 @@ void MainWindow::updateTemplateFromSettings()
     s.speedIps = speedSpin_->value();
     s.darkness = darknessSpin_->value();
     s.copies = copiesSpin_->value();
+    updateCalculatedSizeLabels();
 }
 
 void MainWindow::selectElement(int index)

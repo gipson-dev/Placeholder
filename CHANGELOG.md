@@ -2,6 +2,10 @@
 
 ## 2026-06-22
 
+- Added Label Stock presets for Uline S-8599, Uline S-22422, Zebra 2.25 x 0.75 generic stock, and Zebra ZD620 4 x 2 stock.
+- Added automatic calculated dot-size display for the selected width, height, and DPI.
+- Reordered tabs to `Design | Elements | Data | Templates | Print | Settings` and moved stock/default-printer setup into Settings.
+- Updated the example ZPL to a centered 203 DPI Uline S-8599 test label.
 - Updated bundled templates and sample CSV records to use visible sample label data built around the Code 128 value `226026-K-003`.
 - Improved the visual barcode preview so Code 128 bars are generated from the encoded value instead of decorative placeholder stripes.
 - Changed the element font size editor to a preset dropdown.

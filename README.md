@@ -21,13 +21,30 @@ The app lets you design a label, preview it, fill in values, import a CSV file, 
 1. Install the Zebra Windows printer driver.
 2. Make sure the printer is set up for ZPL printing.
 3. Open LabelPrinterApp.
-4. Open the Print tab and select your Zebra printer from the Installed Printer list. Click `Refresh` if it was just plugged in or installed.
-5. Confirm the label size:
-   - Width: `2.25`
-   - Height: `0.75`
-   - DPI: `203` or `300`, matching your printer
+4. Open the Settings tab and select your Zebra printer from the Default Printer list. Click `Refresh` if it was just plugged in or installed.
+5. Pick a Label Stock preset, such as `Uline S-8599 - 2.25" x 0.75" Direct Thermal`.
 6. Edit the label fields or drag items in the preview.
 7. Print one test label before printing a batch.
+
+## Label Stock Presets
+
+The Settings tab includes presets for:
+
+- Custom
+- Uline S-8599 - 2.25" x 0.75" Direct Thermal
+- Uline S-22422 - 2.25" x 0.75" Removable Direct Thermal
+- Zebra 2.25" x 0.75" Generic
+- Zebra ZD620 - 4" x 2" Direct Thermal
+
+For 2.25" x 0.75" labels, the calculated printer size is:
+
+- 203 DPI: `457 x 152` dots
+- 300 DPI: `675 x 225` dots
+
+For 4" x 2" labels, the calculated printer size is:
+
+- 203 DPI: `812 x 406` dots
+- 300 DPI: `1200 x 600` dots
 
 ## Printing From CSV
 
