@@ -83,6 +83,29 @@ std::vector<int> code128Modules(const std::string& value)
     }
     return modules;
 }
+
+void drawSelectionFrame(QPainter& painter, const QRectF& box, bool selected)
+{
+    painter.setPen(QPen(selected ? QColor(0, 118, 215) : QColor(120, 148, 180), selected ? 2 : 1, selected ? Qt::SolidLine : Qt::DashLine));
+    painter.drawRect(box);
+    if (!selected)
+    {
+        return;
+    }
+
+    painter.setBrush(QColor(130, 130, 130));
+    painter.setPen(Qt::NoPen);
+    const double size = 7.0;
+    const QPointF points[] = {
+        box.topLeft(), QPointF(box.center().x(), box.top()), box.topRight(),
+        QPointF(box.left(), box.center().y()), QPointF(box.right(), box.center().y()),
+        box.bottomLeft(), QPointF(box.center().x(), box.bottom()), box.bottomRight()
+    };
+    for (const QPointF& point : points)
+    {
+        painter.drawRect(QRectF(point.x() - size / 2.0, point.y() - size / 2.0, size, size));
+    }
+}
 }
 
 PreviewWidget::PreviewWidget(QWidget* parent)
@@ -115,12 +138,21 @@ void PreviewWidget::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.fillRect(rect(), QColor(238, 241, 245));
+    painter.fillRect(rect(), QColor(214, 214, 214));
 
     QRectF label = labelRect();
     const double labelWidthInches = safeLabelWidth(template_);
     const double labelHeightInches = safeLabelHeight(template_);
-    painter.setPen(QPen(QColor(90, 90, 90), 1));
+
+    QRectF topRuler(label.left(), 0, label.width(), label.top() - 4);
+    QRectF leftRuler(0, label.top(), label.left() - 4, label.height());
+    painter.fillRect(topRuler, QColor(235, 235, 235));
+    painter.fillRect(leftRuler, QColor(235, 235, 235));
+    painter.setPen(QPen(QColor(120, 120, 120), 1));
+    painter.drawLine(QPointF(label.left(), topRuler.bottom()), QPointF(label.right(), topRuler.bottom()));
+    painter.drawLine(QPointF(leftRuler.right(), label.top()), QPointF(leftRuler.right(), label.bottom()));
+
+    painter.setPen(QPen(QColor(70, 70, 70), 1));
     painter.drawText(QRectF(label.left(), label.top() - 24, label.width(), 18), Qt::AlignCenter,
                      QString("%1\" x %2\"").arg(labelWidthInches, 0, 'f', 2).arg(labelHeightInches, 0, 'f', 2));
     painter.setPen(QPen(QColor(140, 140, 140), 1));
@@ -138,6 +170,9 @@ void PreviewWidget::paintEvent(QPaintEvent*)
     painter.setPen(QPen(QColor(96, 110, 128), 2));
     painter.setBrush(Qt::white);
     painter.drawRoundedRect(label, 5, 5);
+    painter.setPen(QPen(QColor(40, 40, 40), 1, Qt::DashLine));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRoundedRect(label.adjusted(8, 8, -8, -8), 4, 4);
     drawGrid(painter, label);
 
     if (template_.elements.empty())
@@ -192,12 +227,15 @@ void PreviewWidget::mousePressEvent(QMouseEvent* event)
 
 void PreviewWidget::mouseMoveEvent(QMouseEvent* event)
 {
+    QRectF label = labelRect();
+    QPointF cursorPoint = widgetToLabel(event->position(), label);
+    emit cursorPositionChanged(cursorPoint.x(), cursorPoint.y());
+
     if (draggingElement_ < 0 || draggingElement_ >= static_cast<int>(template_.elements.size()))
     {
         return;
     }
 
-    QRectF label = labelRect();
     QPointF labelPoint = widgetToLabel(event->position(), label) - dragOffsetInches_;
     LabelElement& element = template_.elements[draggingElement_];
     element.xInches = std::max(0.0, labelPoint.x());
@@ -353,8 +391,7 @@ void PreviewWidget::drawTextElement(QPainter& painter, const LabelElement& eleme
     else flags |= Qt::AlignLeft;
     if (element.wrap || element.multiLine) flags |= Qt::TextWordWrap;
 
-    painter.setPen(QPen(selected ? QColor(0, 120, 215) : QColor(120, 148, 180), selected ? 2 : 1, selected ? Qt::SolidLine : Qt::DashLine));
-    painter.drawRect(box);
+    drawSelectionFrame(painter, box, selected);
     painter.setClipRect(box.adjusted(2, 2, -2, -2));
     painter.setPen(Qt::black);
     QRectF textBox = box.adjusted(6, 4, -6, -4);
@@ -423,8 +460,7 @@ void PreviewWidget::drawBarcodeElement(QPainter& painter, const LabelElement& el
         }
     }
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(selected ? QColor(0, 120, 215) : QColor(70, 130, 180), selected ? 2 : 1));
-    painter.drawRect(box);
+    drawSelectionFrame(painter, box, selected);
     if (element.humanReadable)
     {
         QFont font("Arial");
@@ -468,5 +504,7 @@ void PreviewWidget::drawQrElement(QPainter& painter, const LabelElement& element
             }
         }
     }
+    painter.setBrush(Qt::NoBrush);
+    drawSelectionFrame(painter, box, selected);
     painter.restore();
 }

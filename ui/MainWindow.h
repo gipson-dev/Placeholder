@@ -40,6 +40,7 @@ private:
     QWidget* buildPrinterSettingsPanel(QWidget* parent);
     void applyStockPreset(int index);
     void updateCalculatedSizeLabels();
+    void updateStatusSummary();
     void refreshPrinterList();
     void refreshElementList();
     void refreshTemplateLibrary();
@@ -101,4 +102,8 @@ private:
     QSpinBox* serialStartSpin_ = nullptr;
     QSpinBox* serialEndSpin_ = nullptr;
     ExcelRecordsWidget* excelRecords_ = nullptr;
+    QLabel* statusPositionLabel_ = nullptr;
+    QLabel* statusStockLabel_ = nullptr;
+    QLabel* statusDpiLabel_ = nullptr;
+    QLabel* statusZoomLabel_ = nullptr;
 };

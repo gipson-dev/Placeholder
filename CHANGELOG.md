@@ -2,6 +2,7 @@
 
 ## 2026-06-22
 
+- Restyled the design workspace toward a classic LabelDirect/ZebraDesigner layout with a light theme, dense menus/toolbars, compact left tool palette, rulered canvas, dashed printable boundary, selection handles, inspector tabs, bottom alignment toolbar, and richer status bar.
 - Fixed database printing so checked Excel/CSV rows print their own field values instead of repeating a fixed sample item number from the active template.
 - Updated bundled item/barcode templates to use `{ItemNumber}`, `{Description}`, `{Lot}`, `{Order id}`, and `{Name}` placeholders where appropriate.
 - Added an Excel database-style Data tab with `.xlsx`/CSV load, editable table records, print checkboxes, per-row copies, search, range selection, save/save-as, and label-template variable mapping from column headers.

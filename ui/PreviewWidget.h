@@ -19,6 +19,7 @@ public:
 signals:
     void elementSelected(int index);
     void elementMoved(int index, double xInches, double yInches);
+    void cursorPositionChanged(double xInches, double yInches);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

@@ -141,4 +141,5 @@ The package is written to `dist\LabelPrinterApp`. If `windeployqt.exe` is availa
 - Qt UI code lives in `ui/`.
 - Example generated ZPL is in [docs/example_generated.zpl](docs/example_generated.zpl).
 - Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- Classic UI redesign notes are in [docs/UI_REDESIGN.md](docs/UI_REDESIGN.md).
 - The phase roadmap is in [docs/ROADMAP.md](docs/ROADMAP.md).

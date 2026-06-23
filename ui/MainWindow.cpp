@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QFrame>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -23,6 +24,7 @@
 #include <QSpinBox>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QStyle>
 #include <QStringList>
 #include <QTabWidget>
 #include <QTableWidget>
@@ -54,6 +56,21 @@ MainWindow::MainWindow(QWidget* parent)
 void MainWindow::buildUi()
 {
     setWindowTitle("LabelPrinterApp");
+    setStyleSheet(
+        "QMainWindow, QWidget { background: #ececec; color: #111; font-family: Segoe UI, Arial; font-size: 9pt; }"
+        "QMenuBar { background: #f4f4f4; border-bottom: 1px solid #a7a7a7; }"
+        "QMenuBar::item:selected { background: #dce8f7; }"
+        "QToolBar { background: #eeeeee; border-top: 1px solid #ffffff; border-bottom: 1px solid #a8a8a8; spacing: 2px; padding: 2px; }"
+        "QToolButton { background: #f7f7f7; border: 1px solid #a8a8a8; padding: 2px; min-width: 22px; min-height: 22px; }"
+        "QToolButton:hover, QPushButton:hover { background: #e2eefc; }"
+        "QPushButton { background: #efefef; border: 1px solid #9f9f9f; padding: 3px 7px; }"
+        "QGroupBox { border: 1px solid #8f8f8f; margin-top: 10px; background: #eeeeee; }"
+        "QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 3px; }"
+        "QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #ffffff; border: 1px solid #9f9f9f; min-height: 20px; }"
+        "QTabWidget::pane { border: 1px solid #9f9f9f; background: #eeeeee; }"
+        "QTabBar::tab { background: #e1e1e1; border: 1px solid #9f9f9f; padding: 3px 10px; margin-right: 1px; }"
+        "QTabBar::tab:selected { background: #ffffff; border-bottom-color: #ffffff; }"
+        "QStatusBar { background: #efefef; border-top: 1px solid #a7a7a7; }");
     buildMenus();
     buildToolbar();
 
@@ -65,6 +82,18 @@ void MainWindow::buildUi()
     tabs_->addTab(buildPrintTab(), "Print");
     tabs_->addTab(buildSettingsTab(), "Settings");
     setCentralWidget(tabs_);
+
+    statusBar()->showMessage("For Help, press F1");
+    statusPositionLabel_ = new QLabel("X,Y: 0.00,0.00", this);
+    statusStockLabel_ = new QLabel(this);
+    statusDpiLabel_ = new QLabel(this);
+    statusZoomLabel_ = new QLabel("Zoom 167%", this);
+    for (QLabel* label : {statusPositionLabel_, statusStockLabel_, statusDpiLabel_, statusZoomLabel_})
+    {
+        label->setMinimumWidth(110);
+        label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+        statusBar()->addPermanentWidget(label);
+    }
 
     connect(elementList_, &QListWidget::currentRowChanged, this, &MainWindow::selectElement);
     connect(editor_, &ElementEditorWidget::elementChanged, this, [this](const LabelElement& element) {
@@ -79,6 +108,12 @@ void MainWindow::buildUi()
         }
     });
     connect(preview_, &PreviewWidget::elementSelected, this, &MainWindow::selectElement);
+    connect(preview_, &PreviewWidget::cursorPositionChanged, this, [this](double x, double y) {
+        if (statusPositionLabel_)
+        {
+            statusPositionLabel_->setText(QString("X,Y: %1,%2").arg(x, 0, 'f', 2).arg(y, 0, 'f', 2));
+        }
+    });
     connect(preview_, &PreviewWidget::elementMoved, this, [this](int index, double x, double y) {
         if (index >= 0 && index < static_cast<int>(labelTemplate_.elements.size()))
         {
@@ -111,22 +146,52 @@ void MainWindow::buildMenus()
     file->addAction("New", this, &MainWindow::newTemplate);
     file->addAction("Open", this, &MainWindow::loadTemplate);
     file->addAction("Save", this, &MainWindow::saveTemplate);
+    file->addAction("Print", this, &MainWindow::printCurrent);
     file->addSeparator();
     file->addAction("Exit", this, &QWidget::close);
 
+    auto* insert = menuBar()->addMenu("Insert");
+    insert->addAction("Text", this, [this] { addElement(LabelElementType::Text); });
+    insert->addAction("Barcode", this, [this] { addElement(LabelElementType::Code128Barcode); });
+    insert->addAction("QR Code", this, [this] { addElement(LabelElementType::QrCode); });
+
     auto* edit = menuBar()->addMenu("Edit");
+    edit->addAction("Cut");
+    edit->addAction("Copy");
+    edit->addAction("Paste");
+    edit->addSeparator();
     edit->addAction("Duplicate Element", this, &MainWindow::duplicateSelectedElement);
     edit->addAction("Delete Element", this, &MainWindow::deleteSelectedElement);
+
+    auto* layout = menuBar()->addMenu("Layout");
     edit->addAction("Move Up", this, [this] { moveSelectedElement(-1); });
     edit->addAction("Move Down", this, [this] { moveSelectedElement(1); });
+    layout->addAction("Bring Forward", this, [this] { moveSelectedElement(1); });
+    layout->addAction("Send Backward", this, [this] { moveSelectedElement(-1); });
+    layout->addAction("Align Left");
+    layout->addAction("Align Center");
+    layout->addAction("Align Right");
 
     auto* view = menuBar()->addMenu("View");
     view->addAction("Preview ZPL", this, &MainWindow::previewZpl);
+    view->addAction("Zoom In");
+    view->addAction("Zoom Out");
+    view->addAction("Fit to Label");
+
+    auto* stock = menuBar()->addMenu("Stock");
+    stock->addAction("Label Stock Settings", this, [this] { tabs_->setCurrentIndex(5); });
+
+    auto* database = menuBar()->addMenu("Database");
+    database->addAction("Load Database", this, &MainWindow::importCsv);
+    database->addAction("Print Selected Records", this, &MainWindow::printSelectedCsvRows);
 
     auto* printer = menuBar()->addMenu("Printer");
     printer->addAction("Refresh Printers", this, &MainWindow::refreshPrinterList);
     printer->addAction("Print Test Label", this, &MainWindow::printTestLabel);
     printer->addAction("Print Labels", this, &MainWindow::printCurrent);
+
+    auto* preferences = menuBar()->addMenu("Preferences");
+    preferences->addAction("Settings", this, [this] { tabs_->setCurrentIndex(5); });
 
     auto* templates = menuBar()->addMenu("Templates");
     templates->addAction("Load Template", this, &MainWindow::loadTemplate);
@@ -141,31 +206,80 @@ void MainWindow::buildMenus()
 void MainWindow::buildToolbar()
 {
     auto* toolbar = addToolBar("Main");
-    toolbar->addAction("New", this, &MainWindow::newTemplate);
-    toolbar->addAction("Open", this, &MainWindow::loadTemplate);
-    toolbar->addAction("Save", this, &MainWindow::saveTemplate);
+    toolbar->setIconSize(QSize(16, 16));
+    toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    toolbar->addAction(style()->standardIcon(QStyle::SP_FileIcon), "New", this, &MainWindow::newTemplate);
+    toolbar->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "Open", this, &MainWindow::loadTemplate);
+    toolbar->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), "Save", this, &MainWindow::saveTemplate);
     toolbar->addSeparator();
-    toolbar->addAction("Print", this, &MainWindow::printCurrent);
-    toolbar->addAction("Preview", this, &MainWindow::previewZpl);
-    toolbar->addAction("Test Label", this, &MainWindow::printTestLabel);
+    toolbar->addAction(style()->standardIcon(QStyle::SP_DialogApplyButton), "Print", this, &MainWindow::printCurrent);
+    toolbar->addAction("Cut");
+    toolbar->addAction("Copy");
+    toolbar->addAction("Paste");
+    toolbar->addSeparator();
+    toolbar->addAction("Undo");
+    toolbar->addAction("Redo");
+    toolbar->addSeparator();
+    toolbar->addAction(style()->standardIcon(QStyle::SP_ArrowUp), "Zoom In");
+    toolbar->addAction(style()->standardIcon(QStyle::SP_ArrowDown), "Zoom Out");
+    toolbar->addAction("Fit", this, [this] { if (statusZoomLabel_) statusZoomLabel_->setText("Zoom Fit"); });
+    toolbar->addSeparator();
+    toolbar->addAction("T", this, [this] { addElement(LabelElementType::Text); });
+    toolbar->addAction("|||", this, [this] { addElement(LabelElementType::Code128Barcode); });
+    toolbar->addAction("QR", this, [this] { addElement(LabelElementType::QrCode); });
+    toolbar->addAction(style()->standardIcon(QStyle::SP_TrashIcon), "Delete", this, &MainWindow::deleteSelectedElement);
+    toolbar->addSeparator();
+    toolbar->addAction("Front", this, [this] { moveSelectedElement(1); });
+    toolbar->addAction("Back", this, [this] { moveSelectedElement(-1); });
+    toolbar->addAction("L");
+    toolbar->addAction("C");
+    toolbar->addAction("R");
+    toolbar->addAction("Grid");
+    toolbar->addAction("Snap");
+    toolbar->addSeparator();
+    toolbar->addAction(style()->standardIcon(QStyle::SP_MessageBoxQuestion), "Help");
+
+    auto* alignToolbar = new QToolBar("Alignment", this);
+    alignToolbar->setIconSize(QSize(16, 16));
+    alignToolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    addToolBar(Qt::BottomToolBarArea, alignToolbar);
+    for (const QString& text : {"Align left", "Align center", "Align right", "Align top", "Align middle", "Align bottom", "Equal spacing", "Bring forward", "Send backward", "Lock", "Unlock"})
+    {
+        alignToolbar->addAction(text);
+    }
 }
 
 QWidget* MainWindow::buildDesignTab()
 {
     auto* tab = new QWidget(this);
     auto* layout = new QHBoxLayout(tab);
+    layout->setContentsMargins(4, 4, 4, 4);
+    layout->setSpacing(4);
 
-    auto* toolbox = new QGroupBox("Toolbox", tab);
+    auto* toolbox = new QFrame(tab);
+    toolbox->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    toolbox->setFixedWidth(44);
     auto* toolboxLayout = new QVBoxLayout(toolbox);
-    auto addToolButton = [this, toolboxLayout](const QString& text, LabelElementType type) {
+    toolboxLayout->setContentsMargins(4, 6, 4, 6);
+    toolboxLayout->setSpacing(4);
+    auto addToolButton = [this, toolboxLayout](const QString& text, const QString& tip, LabelElementType type) {
         auto* button = new QPushButton(text, this);
+        button->setToolTip(tip);
+        button->setFixedSize(28, 26);
         toolboxLayout->addWidget(button);
         connect(button, &QPushButton::clicked, this, [this, type] { addElement(type); });
     };
-    addToolButton("Text / Number", LabelElementType::Text);
-    addToolButton("Barcode", LabelElementType::Code128Barcode);
-    addToolButton("QR Code", LabelElementType::QrCode);
-    auto* dateButton = new QPushButton("Date/Time", toolbox);
+    auto* selectButton = new QPushButton("SEL", toolbox);
+    selectButton->setToolTip("Select pointer");
+    selectButton->setFixedSize(28, 26);
+    toolboxLayout->addWidget(selectButton);
+    addToolButton("A", "Text tool", LabelElementType::Text);
+    addToolButton("123", "Number / serial tool", LabelElementType::Text);
+    addToolButton("|||", "Barcode tool", LabelElementType::Code128Barcode);
+    addToolButton("QR", "QR code tool", LabelElementType::QrCode);
+    auto* dateButton = new QPushButton("DT", toolbox);
+    dateButton->setToolTip("Date/time field");
+    dateButton->setFixedSize(28, 26);
     toolboxLayout->addWidget(dateButton);
     connect(dateButton, &QPushButton::clicked, this, [this] {
         addElement(LabelElementType::Text);
@@ -183,7 +297,9 @@ QWidget* MainWindow::buildDesignTab()
             refreshPreview();
         }
     });
-    auto* serialButton = new QPushButton("Serial #", toolbox);
+    auto* serialButton = new QPushButton("#", toolbox);
+    serialButton->setToolTip("Serial number field");
+    serialButton->setFixedSize(28, 26);
     toolboxLayout->addWidget(serialButton);
     connect(serialButton, &QPushButton::clicked, this, [this] {
         addElement(LabelElementType::Text);
@@ -202,16 +318,42 @@ QWidget* MainWindow::buildDesignTab()
             refreshPreview();
         }
     });
-    toolboxLayout->addWidget(new QPushButton("Line", toolbox));
-    toolboxLayout->addWidget(new QPushButton("Box", toolbox));
+    auto* lineButton = new QPushButton("-", toolbox);
+    auto* boxButton = new QPushButton("BOX", toolbox);
+    auto* imageButton = new QPushButton("IMG", toolbox);
+    for (QPushButton* button : {lineButton, boxButton, imageButton})
+    {
+        button->setFixedSize(28, 26);
+        toolboxLayout->addWidget(button);
+    }
+    lineButton->setToolTip("Line tool");
+    boxButton->setToolTip("Box tool");
+    imageButton->setToolTip("Image/logo tool (future)");
+    imageButton->setEnabled(false);
     toolboxLayout->addStretch();
 
     preview_ = new PreviewWidget(tab);
 
-    auto* properties = new QGroupBox("Properties", tab);
+    auto* properties = new QFrame(tab);
+    properties->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    properties->setMinimumWidth(320);
+    properties->setMaximumWidth(360);
     auto* propertiesLayout = new QVBoxLayout(properties);
+    propertiesLayout->setContentsMargins(8, 8, 8, 8);
+    auto* appName = new QLabel("<b style='font-size:18px'>LabelPrinterApp</b> <span style='color:#d46b1c'>Zebra Label Designer</span>", properties);
+    propertiesLayout->addWidget(appName);
+    auto* propertyTabs = new QTabWidget(properties);
     editor_ = new ElementEditorWidget(properties);
-    propertiesLayout->addWidget(editor_);
+    propertyTabs->addTab(editor_, "Text");
+    for (const QString& name : {"Formatting", "Position", "Data", "Barcode", "Print"})
+    {
+        auto* placeholder = new QWidget(propertyTabs);
+        auto* placeholderLayout = new QVBoxLayout(placeholder);
+        placeholderLayout->addWidget(new QLabel("Use the Text tab for the selected element's editable fields.", placeholder));
+        placeholderLayout->addStretch();
+        propertyTabs->addTab(placeholder, name);
+    }
+    propertiesLayout->addWidget(propertyTabs, 1);
 
     layout->addWidget(toolbox, 0);
     layout->addWidget(preview_, 1);
@@ -512,6 +654,25 @@ void MainWindow::updateCalculatedSizeLabels()
     const int heightDots = static_cast<int>(heightSpin_->value() * dpi + 0.5);
     widthDotsLabel_->setText(QString("%1 dots").arg(widthDots));
     heightDotsLabel_->setText(QString("%1 dots").arg(heightDots));
+    updateStatusSummary();
+}
+
+void MainWindow::updateStatusSummary()
+{
+    if (!statusStockLabel_ || !statusDpiLabel_ || !statusZoomLabel_)
+    {
+        return;
+    }
+
+    const PrinterSettings& s = labelTemplate_.settings;
+    statusStockLabel_->setText(QString("Label %1\" x %2\"")
+                                   .arg(s.labelWidthInches, 0, 'f', 2)
+                                   .arg(s.labelHeightInches, 0, 'f', 2));
+    statusDpiLabel_->setText(QString("DPI %1 | Dots %2 x %3")
+                                 .arg(s.dpi)
+                                 .arg(s.labelWidthDots())
+                                 .arg(s.labelHeightDots()));
+    statusZoomLabel_->setText("Zoom 167%");
 }
 
 void MainWindow::refreshPrinterList()
@@ -619,6 +780,7 @@ void MainWindow::refreshPreview()
 {
     preview_->setTemplate(labelTemplate_);
     preview_->setSelectedElement(selectedElement_);
+    updateStatusSummary();
 }
 
 void MainWindow::loadDefaultTemplate()
