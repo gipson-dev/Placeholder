@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QFrame>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QInputDialog>
@@ -20,10 +21,12 @@
 #include <QModelIndex>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QScrollArea>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QStringList>
 #include <QTabWidget>
@@ -64,6 +67,9 @@ void MainWindow::buildUi()
         "QToolButton { background: #f7f7f7; border: 1px solid #a8a8a8; padding: 2px; min-width: 22px; min-height: 22px; }"
         "QToolButton:hover, QPushButton:hover { background: #e2eefc; }"
         "QPushButton { background: #efefef; border: 1px solid #9f9f9f; padding: 3px 7px; }"
+        "QPushButton#ToolboxButton { text-align: left; padding-left: 8px; min-height: 25px; }"
+        "QPushButton#InspectorTabButton { text-align: center; padding: 4px 6px; min-height: 24px; }"
+        "QPushButton#InspectorTabButton:checked { background: #ffffff; border: 1px solid #6f9ed6; }"
         "QGroupBox { border: 1px solid #8f8f8f; margin-top: 10px; background: #eeeeee; }"
         "QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 3px; }"
         "QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #ffffff; border: 1px solid #9f9f9f; min-height: 20px; }"
@@ -253,33 +259,41 @@ QWidget* MainWindow::buildDesignTab()
 {
     auto* tab = new QWidget(this);
     auto* layout = new QHBoxLayout(tab);
-    layout->setContentsMargins(4, 4, 4, 4);
-    layout->setSpacing(4);
+    layout->setContentsMargins(3, 3, 3, 3);
+    layout->setSpacing(0);
+
+    auto* splitter = new QSplitter(Qt::Horizontal, tab);
+    splitter->setChildrenCollapsible(false);
+    splitter->setHandleWidth(7);
 
     auto* toolbox = new QFrame(tab);
     toolbox->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    toolbox->setFixedWidth(44);
+    toolbox->setMinimumWidth(118);
+    toolbox->setMaximumWidth(170);
     auto* toolboxLayout = new QVBoxLayout(toolbox);
-    toolboxLayout->setContentsMargins(4, 6, 4, 6);
-    toolboxLayout->setSpacing(4);
+    toolboxLayout->setContentsMargins(6, 8, 6, 8);
+    toolboxLayout->setSpacing(5);
     auto addToolButton = [this, toolboxLayout](const QString& text, const QString& tip, LabelElementType type) {
         auto* button = new QPushButton(text, this);
+        button->setObjectName("ToolboxButton");
         button->setToolTip(tip);
-        button->setFixedSize(28, 26);
+        button->setMinimumWidth(100);
         toolboxLayout->addWidget(button);
         connect(button, &QPushButton::clicked, this, [this, type] { addElement(type); });
     };
-    auto* selectButton = new QPushButton("SEL", toolbox);
+    auto* selectButton = new QPushButton("Select", toolbox);
+    selectButton->setObjectName("ToolboxButton");
     selectButton->setToolTip("Select pointer");
-    selectButton->setFixedSize(28, 26);
+    selectButton->setMinimumWidth(100);
     toolboxLayout->addWidget(selectButton);
-    addToolButton("A", "Text tool", LabelElementType::Text);
-    addToolButton("123", "Number / serial tool", LabelElementType::Text);
-    addToolButton("|||", "Barcode tool", LabelElementType::Code128Barcode);
-    addToolButton("QR", "QR code tool", LabelElementType::QrCode);
-    auto* dateButton = new QPushButton("DT", toolbox);
+    addToolButton("Text", "Text tool", LabelElementType::Text);
+    addToolButton("Number", "Number / serial tool", LabelElementType::Text);
+    addToolButton("Barcode", "Barcode tool", LabelElementType::Code128Barcode);
+    addToolButton("QR Code", "QR code tool", LabelElementType::QrCode);
+    auto* dateButton = new QPushButton("Date/Time", toolbox);
+    dateButton->setObjectName("ToolboxButton");
     dateButton->setToolTip("Date/time field");
-    dateButton->setFixedSize(28, 26);
+    dateButton->setMinimumWidth(100);
     toolboxLayout->addWidget(dateButton);
     connect(dateButton, &QPushButton::clicked, this, [this] {
         addElement(LabelElementType::Text);
@@ -297,9 +311,10 @@ QWidget* MainWindow::buildDesignTab()
             refreshPreview();
         }
     });
-    auto* serialButton = new QPushButton("#", toolbox);
+    auto* serialButton = new QPushButton("Serial #", toolbox);
+    serialButton->setObjectName("ToolboxButton");
     serialButton->setToolTip("Serial number field");
-    serialButton->setFixedSize(28, 26);
+    serialButton->setMinimumWidth(100);
     toolboxLayout->addWidget(serialButton);
     connect(serialButton, &QPushButton::clicked, this, [this] {
         addElement(LabelElementType::Text);
@@ -318,12 +333,13 @@ QWidget* MainWindow::buildDesignTab()
             refreshPreview();
         }
     });
-    auto* lineButton = new QPushButton("-", toolbox);
-    auto* boxButton = new QPushButton("BOX", toolbox);
-    auto* imageButton = new QPushButton("IMG", toolbox);
+    auto* lineButton = new QPushButton("Line", toolbox);
+    auto* boxButton = new QPushButton("Box", toolbox);
+    auto* imageButton = new QPushButton("Image", toolbox);
     for (QPushButton* button : {lineButton, boxButton, imageButton})
     {
-        button->setFixedSize(28, 26);
+        button->setObjectName("ToolboxButton");
+        button->setMinimumWidth(100);
         toolboxLayout->addWidget(button);
     }
     lineButton->setToolTip("Line tool");
@@ -336,28 +352,65 @@ QWidget* MainWindow::buildDesignTab()
 
     auto* properties = new QFrame(tab);
     properties->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    properties->setMinimumWidth(320);
-    properties->setMaximumWidth(360);
+    properties->setMinimumWidth(430);
+    properties->setMaximumWidth(620);
     auto* propertiesLayout = new QVBoxLayout(properties);
     propertiesLayout->setContentsMargins(8, 8, 8, 8);
-    auto* appName = new QLabel("<b style='font-size:18px'>LabelPrinterApp</b> <span style='color:#d46b1c'>Zebra Label Designer</span>", properties);
+    auto* appName = new QLabel("<b style='font-size:18px'>LabelPrinterApp</b><br><span style='color:#d46b1c'>Zebra Label Designer</span>", properties);
+    appName->setWordWrap(true);
     propertiesLayout->addWidget(appName);
-    auto* propertyTabs = new QTabWidget(properties);
-    editor_ = new ElementEditorWidget(properties);
-    propertyTabs->addTab(editor_, "Text");
-    for (const QString& name : {"Formatting", "Position", "Data", "Barcode", "Print"})
-    {
-        auto* placeholder = new QWidget(propertyTabs);
-        auto* placeholderLayout = new QVBoxLayout(placeholder);
-        placeholderLayout->addWidget(new QLabel("Use the Text tab for the selected element's editable fields.", placeholder));
-        placeholderLayout->addStretch();
-        propertyTabs->addTab(placeholder, name);
-    }
-    propertiesLayout->addWidget(propertyTabs, 1);
 
-    layout->addWidget(toolbox, 0);
-    layout->addWidget(preview_, 1);
-    layout->addWidget(properties, 0);
+    auto* tabGrid = new QGridLayout;
+    tabGrid->setContentsMargins(0, 4, 0, 4);
+    tabGrid->setSpacing(3);
+    auto* stack = new QStackedWidget(properties);
+    const QStringList pageNames = {"Text", "Formatting", "Position", "Data", "Barcode", "Print"};
+    QList<QPushButton*> pageButtons;
+    for (int i = 0; i < pageNames.size(); ++i)
+    {
+        auto* button = new QPushButton(pageNames[i], properties);
+        button->setObjectName("InspectorTabButton");
+        button->setCheckable(true);
+        button->setMinimumWidth(118);
+        pageButtons << button;
+        tabGrid->addWidget(button, i / 3, i % 3);
+        connect(button, &QPushButton::clicked, this, [stack, pageButtons, i] {
+            stack->setCurrentIndex(i);
+            for (int b = 0; b < pageButtons.size(); ++b)
+            {
+                pageButtons[b]->setChecked(b == i);
+            }
+        });
+    }
+    pageButtons.front()->setChecked(true);
+    propertiesLayout->addLayout(tabGrid);
+
+    editor_ = new ElementEditorWidget(properties);
+    auto* editorScroll = new QScrollArea(properties);
+    editorScroll->setWidgetResizable(true);
+    editorScroll->setFrameStyle(QFrame::NoFrame);
+    editorScroll->setWidget(editor_);
+    stack->addWidget(editorScroll);
+    for (const QString& name : pageNames.mid(1))
+    {
+        auto* placeholder = new QWidget(stack);
+        auto* placeholderLayout = new QVBoxLayout(placeholder);
+        auto* note = new QLabel(QString("The %1 section will use the selected element values shown on the Text page.").arg(name), placeholder);
+        note->setWordWrap(true);
+        placeholderLayout->addWidget(note);
+        placeholderLayout->addStretch();
+        stack->addWidget(placeholder);
+    }
+    propertiesLayout->addWidget(stack, 1);
+
+    splitter->addWidget(toolbox);
+    splitter->addWidget(preview_);
+    splitter->addWidget(properties);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
+    splitter->setStretchFactor(2, 0);
+    splitter->setSizes({130, 820, 470});
+    layout->addWidget(splitter);
     return tab;
 }
 

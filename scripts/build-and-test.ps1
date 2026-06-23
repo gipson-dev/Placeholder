@@ -142,5 +142,5 @@ if ($CMakePrefixPath) {
     Invoke-Native $cmake -S . -B $BuildDir
 }
 Clear-MsBuildTrackingLogs -BuildDir $BuildDir -Config $Config
-Invoke-Native $cmake --build $BuildDir --config $Config
+Invoke-Native $cmake --build $BuildDir --config $Config --parallel 1
 Invoke-Native $ctest --test-dir $BuildDir -C $Config --output-on-failure

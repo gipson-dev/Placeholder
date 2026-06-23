@@ -86,16 +86,14 @@ std::vector<int> code128Modules(const std::string& value)
 
 void drawSelectionFrame(QPainter& painter, const QRectF& box, bool selected)
 {
-    painter.setPen(QPen(selected ? QColor(0, 118, 215) : QColor(120, 148, 180), selected ? 2 : 1, selected ? Qt::SolidLine : Qt::DashLine));
+    painter.setPen(QPen(selected ? QColor(0, 84, 190) : QColor(53, 93, 135), selected ? 3 : 2, selected ? Qt::SolidLine : Qt::DashLine));
     painter.drawRect(box);
     if (!selected)
     {
         return;
     }
 
-    painter.setBrush(QColor(130, 130, 130));
-    painter.setPen(Qt::NoPen);
-    const double size = 7.0;
+    const double size = 10.0;
     const QPointF points[] = {
         box.topLeft(), QPointF(box.center().x(), box.top()), box.topRight(),
         QPointF(box.left(), box.center().y()), QPointF(box.right(), box.center().y()),
@@ -103,7 +101,13 @@ void drawSelectionFrame(QPainter& painter, const QRectF& box, bool selected)
     };
     for (const QPointF& point : points)
     {
-        painter.drawRect(QRectF(point.x() - size / 2.0, point.y() - size / 2.0, size, size));
+        QRectF handle(point.x() - size / 2.0, point.y() - size / 2.0, size, size);
+        painter.setBrush(Qt::white);
+        painter.setPen(QPen(QColor(0, 84, 190), 2));
+        painter.drawRect(handle);
+        painter.setBrush(QColor(0, 84, 190));
+        painter.setPen(Qt::NoPen);
+        painter.drawRect(handle.adjusted(3, 3, -3, -3));
     }
 }
 }

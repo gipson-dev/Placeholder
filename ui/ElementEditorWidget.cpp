@@ -49,6 +49,10 @@ ElementEditorWidget::ElementEditorWidget(QWidget* parent)
     : QWidget(parent)
 {
     auto* form = new QFormLayout(this);
+    form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    form->setRowWrapPolicy(QFormLayout::WrapLongRows);
+    form->setLabelAlignment(Qt::AlignLeft);
+    form->setFormAlignment(Qt::AlignTop);
     nameEdit_ = new QLineEdit(this);
     typeCombo_ = new QComboBox(this);
     typeCombo_->addItems({"Text", "Code 128", "Code 39", "QR Code"});
@@ -58,6 +62,10 @@ ElementEditorWidget::ElementEditorWidget(QWidget* parent)
     variableEdit_ = new QLineEdit(this);
     prefixEdit_ = new QLineEdit(this);
     suffixEdit_ = new QLineEdit(this);
+    for (QLineEdit* edit : {nameEdit_, textEdit_, variableEdit_, prefixEdit_, suffixEdit_})
+    {
+        edit->setMinimumWidth(220);
+    }
     xSpin_ = new QDoubleSpinBox(this);
     ySpin_ = new QDoubleSpinBox(this);
     boxWidthSpin_ = new QDoubleSpinBox(this);
