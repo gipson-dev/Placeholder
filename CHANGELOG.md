@@ -2,6 +2,7 @@
 
 ## 2026-06-22
 
+- Fixed spinbox stepper hit areas so the increase arrows on numeric fields are clickable.
 - Updated all `docs/` files for the current architecture, classic designer UI, functional inspector pages, layout controls, packaging behavior, and current generated ZPL example.
 - Renamed the right-side inspector header to `Element Property Editor`.
 - Changed the right-side inspector buttons into true filtered pages for Text, Formatting, Position, Data, Barcode, and Print, including visible Do not print and Locked controls.
