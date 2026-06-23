@@ -1,29 +1,30 @@
-# Classic Label Designer UI Redesign
+# Classic Label Designer UI
 
 ## Goal
 
-Move LabelPrinterApp toward a classic LabelDirect/ZebraDesigner-style desktop layout while keeping Zebra ZPL generation, templates, Excel/CSV records, preview, and printing.
+LabelPrinterApp now uses a classic LabelDirect/ZebraDesigner-style desktop layout while keeping the modern Qt/ZPL feature set: templates, text fields, barcodes, QR codes, Excel/CSV records, preview, ZPL generation, and raw Zebra printing.
 
-## Wireframe
+## Current Layout
 
 ```text
 +--------------------------------------------------------------------------------+
 | File Insert Edit Layout View Stock Database Printer Preferences Templates Help   |
 +--------------------------------------------------------------------------------+
 | New Open Save Print Cut Copy Paste Undo Redo Zoom +/- Fit Text Barcode QR ...    |
-+----+-------------------------------------------------------------+---------------+
-|SEL | inch ruler                                                  | LabelPrinterApp|
-|A   |-------------------------------------------------------------| Zebra Designer |
-|123 |                                                             | Text|Format... |
-|||| |   gray workspace                                            | Element Name  |
-|QR  |      +-----------------------------------------------+      | Position      |
-|DT  |      | dashed printable boundary                     |      | Font          |
-|#   |      | selected object with resize handles            |      | Text/Source   |
-|-   |      +-----------------------------------------------+      | Barcode/Print |
-|BOX |                                                             |               |
-|IMG |                                                             |               |
-+----+-------------------------------------------------------------+---------------+
-| Align L C R | Align T M B | Equal Space | Front | Back | Lock | Unlock          |
++--------------+---------------------------------------------+-------------------+
+| Toolbox      | inch ruler                                  | Element Property  |
+| Select       |---------------------------------------------| Editor            |
+| Text         |                                             | Text Formatting   |
+| Number       |   gray workspace                            | Position          |
+| Barcode      |      +-------------------------------+      | Data Barcode      |
+| QR Code      |      | white label with grid          |      | Print             |
+| Date/Time    |      | dashed printable boundary      |      |                   |
+| Serial #     |      | blue selection handles         |      | Filtered fields   |
+| Line         |      +-------------------------------+      | for active page   |
+| Box          |                                             |                   |
+| Image        |                                             |                   |
++--------------+---------------------------------------------+-------------------+
+| Align left | Align center | Align right | Align top | Align middle | ...         |
 +--------------------------------------------------------------------------------+
 | For Help, press F1                         | Label 2.25 x 0.75 | DPI 203 | Zoom |
 +--------------------------------------------------------------------------------+
@@ -31,27 +32,59 @@ Move LabelPrinterApp toward a classic LabelDirect/ZebraDesigner-style desktop la
 
 ## Qt Widgets
 
-- `QMainWindow`: shell, menu bar, main toolbar, bottom toolbar, status bar.
-- `QToolBar`: dense icon-style command strips.
-- `QTabWidget`: compact workflow access for Design, Elements, Data, Templates, Print, Settings.
-- `QFrame` + `QVBoxLayout`: compact left tool palette and right inspector.
-- `PreviewWidget`: rulered canvas, white label, grid, dashed printable boundary, selection handles.
-- `ElementEditorWidget`: right inspector editor embedded under Text/Formatting/Position/Data/Barcode/Print tabs.
+- `QMainWindow`: menu bar, main toolbar, workflow tabs, bottom alignment toolbar, status bar.
+- `QToolBar`: compact command strips for file/edit/view/layout actions.
+- `QTabWidget`: workflow pages for Design, Elements, Data, Templates, Print, and Settings.
+- `QSplitter`: movable left toolbox, center designer, and right property editor sections.
+- `QFrame`: classic framed left toolbox and right property panel.
+- `PreviewWidget`: custom painter for rulers, canvas, grid, label outline, printable margin, elements, and selection handles.
+- `ElementEditorWidget`: filtered property pages for Text, Formatting, Position, Data, Barcode, and Print.
+- `ExcelRecordsWidget`: editable records table for CSV and `.xlsx` database printing.
 
 ## Visual Style
 
 - App background: `#ececec`
 - Toolbar/panels: `#eeeeee`
 - Canvas workspace: `#d6d6d6`
-- Label: white with dark outline
 - Rulers: `#ebebeb`
+- Label: white with a dark outline
+- Printable margin: dashed dark outline
 - Grid: pale blue-gray dotted lines
-- Selection: blue outline with gray resize handles
+- Selection: strong blue outline with large blue/white handles
+- Checkbox indicators: high-contrast border and checked fill
 - Font: Segoe UI/Arial, compact 9 pt
 
-## Behavior Notes
+## Inspector Pages
 
-- The Design tab now visually behaves like the old professional design surface.
-- Data, Templates, Print, and Settings stay available so no printing workflow is removed.
-- Status bar reports help text, cursor placeholder, label size, DPI/dots, and zoom.
-- Properties inspector tabs are in place for future per-type panels; the Text tab contains the current full editor.
+The right-side header reads `Element Property Editor`. The section buttons are functional filtered pages:
+
+- `Text`: name, type, and text value.
+- `Formatting`: font size dropdown, font width, bold, italic, underline, wrap, auto-fit, max lines, and alignment.
+- `Position`: X, Y, box width, and rotation.
+- `Data`: source mode, variable name, prefix, and suffix.
+- `Barcode`: Code 128/Code 39 height, module width, human-readable toggle, or QR magnification.
+- `Print`: do-not-print and locked toggles.
+
+The filtered page design prevents the old long property list from making the page buttons look inactive.
+
+## Designer Behavior
+
+- Click elements in the preview to select them.
+- Drag unlocked elements to move them.
+- Locked elements remain selectable but do not drag.
+- The status bar shows cursor position, label size, DPI/dot size, and zoom.
+- The bottom layout toolbar applies to the selected element:
+  - Align left/center/right/top/middle/bottom
+  - Equal spacing for three or more elements
+  - Bring forward/send backward for layer order
+  - Lock/unlock
+- Toolbar layout actions mirror the bottom toolbar where practical.
+
+## Stock And Preview Notes
+
+The default preset is Uline S-8599 2.25 x 0.75 direct thermal stock.
+
+- 203 DPI: `457 x 152` dots
+- 300 DPI: `675 x 225` dots
+
+The Settings tab also includes Uline S-22422, Zebra 2.25 x 0.75 generic, and Zebra ZD620 4 x 2 direct thermal presets.

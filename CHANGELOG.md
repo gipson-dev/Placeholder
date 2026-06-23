@@ -2,6 +2,7 @@
 
 ## 2026-06-22
 
+- Updated all `docs/` files for the current architecture, classic designer UI, functional inspector pages, layout controls, packaging behavior, and current generated ZPL example.
 - Renamed the right-side inspector header to `Element Property Editor`.
 - Changed the right-side inspector buttons into true filtered pages for Text, Formatting, Position, Data, Barcode, and Print, including visible Do not print and Locked controls.
 - Wired inspector section buttons to jump to the matching editor fields and connected layout toolbar actions for align, equal spacing, layer order, lock, and unlock.
