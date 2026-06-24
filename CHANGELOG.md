@@ -2,6 +2,7 @@
 
 ## 2026-06-22
 
+- Made Landscape the default label orientation for stock/templates and added working Grid and Snap toolbar toggles, including app-settings persistence and 0.25 inch snap-to-grid movement.
 - Regenerated bundled templates into two clear test-template sets for 2.25 x 0.75 and 4 x 2 label stock, using `TEST LABEL`, `Test description`, and `TEST-001` style sample values.
 - Updated sample CSV files to use matching test label data.
 - Restored reliable increase-arrow clicks on numeric fields by leaving spinbox button rendering to the native Qt/Windows control and applying sizing in code instead of the global stylesheet.

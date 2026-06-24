@@ -28,6 +28,7 @@ This roadmap tracks the twenty-phase build plan. The current application covers 
 ## Current Completed Highlights
 
 - Classic light desktop UI with menu bar, dense toolbar, readable left toolbox, rulered canvas, printable margin, and bottom alignment toolbar.
+- Working Grid and Snap toolbar toggles for optional grid display and 0.25 inch snapped element movement.
 - Right-side `Element Property Editor` with true filtered pages: Text, Formatting, Position, Data, Barcode, and Print.
 - Functional bottom layout controls: align, equal spacing, bring forward, send backward, lock, and unlock.
 - Excel/CSV Data tab with load/save, editable rows, print checkboxes, copies, search, row ranges, and placeholder mapping.

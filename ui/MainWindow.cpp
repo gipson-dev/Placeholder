@@ -1,5 +1,6 @@
 #include "ui/MainWindow.h"
 
+#include <QAction>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -278,8 +279,16 @@ void MainWindow::buildToolbar()
     toolbar->addAction("L", this, &MainWindow::alignSelectedLeft);
     toolbar->addAction("C", this, &MainWindow::alignSelectedCenter);
     toolbar->addAction("R", this, &MainWindow::alignSelectedRight);
-    toolbar->addAction("Grid", this, [this] { statusBar()->showMessage("Grid is visible on the design canvas."); });
-    toolbar->addAction("Snap", this, [this] { statusBar()->showMessage("Snap uses the 0.25 inch design grid."); });
+    gridAction_ = toolbar->addAction("Grid");
+    gridAction_->setCheckable(true);
+    gridAction_->setChecked(true);
+    gridAction_->setToolTip("Show or hide the 0.25 inch design grid");
+    connect(gridAction_, &QAction::toggled, this, &MainWindow::setGridVisible);
+    snapAction_ = toolbar->addAction("Snap");
+    snapAction_->setCheckable(true);
+    snapAction_->setChecked(false);
+    snapAction_->setToolTip("Snap dragged elements to the 0.25 inch design grid");
+    connect(snapAction_, &QAction::toggled, this, &MainWindow::setSnapToGrid);
     toolbar->addSeparator();
     toolbar->addAction(style()->standardIcon(QStyle::SP_MessageBoxQuestion), "Help");
 
@@ -674,6 +683,7 @@ QWidget* MainWindow::buildPrinterSettingsPanel(QWidget* parent)
     heightDotsLabel_ = new QLabel(group);
     orientationCombo_ = new QComboBox(group);
     orientationCombo_->addItems({"Portrait", "Landscape"});
+    orientationCombo_->setCurrentIndex(static_cast<int>(LabelOrientation::Landscape));
     speedSpin_ = new QSpinBox(group);
     speedSpin_->setRange(1, 14);
     darknessSpin_ = new QSpinBox(group);
@@ -723,6 +733,7 @@ void MainWindow::applyStockPreset(int index)
     QSignalBlocker methodBlocker(printMethodCombo_);
     QSignalBlocker coreBlocker(coreSizeCombo_);
     QSignalBlocker dpiBlocker(dpiCombo_);
+    QSignalBlocker orientationBlocker(orientationCombo_);
 
     if (index == 4)
     {
@@ -738,6 +749,7 @@ void MainWindow::applyStockPreset(int index)
     mediaCombo_->setCurrentIndex(static_cast<int>(MediaSensingMode::Gap));
     printMethodCombo_->setCurrentIndex(0);
     coreSizeCombo_->setCurrentIndex(0);
+    orientationCombo_->setCurrentIndex(static_cast<int>(LabelOrientation::Landscape));
     int dpiIndex = dpiCombo_->findData(203);
     if (dpiIndex >= 0)
     {
@@ -781,6 +793,24 @@ void MainWindow::updateStatusSummary()
     statusZoomLabel_->setText("Zoom 167%");
 }
 
+void MainWindow::setGridVisible(bool visible)
+{
+    if (preview_)
+    {
+        preview_->setGridVisible(visible);
+    }
+    statusBar()->showMessage(visible ? "Grid visible." : "Grid hidden.");
+}
+
+void MainWindow::setSnapToGrid(bool enabled)
+{
+    if (preview_)
+    {
+        preview_->setSnapToGrid(enabled);
+    }
+    statusBar()->showMessage(enabled ? "Snap to grid enabled." : "Snap to grid disabled.");
+}
+
 void MainWindow::loadAppSettings()
 {
     QSettings settings("LabelPrinterApp", "LabelPrinterApp");
@@ -821,6 +851,16 @@ void MainWindow::loadAppSettings()
     {
         tabs_->setCurrentIndex(std::clamp(settings.value("window/activeTab", tabs_->currentIndex()).toInt(), 0, tabs_->count() - 1));
     }
+    if (gridAction_)
+    {
+        gridAction_->setChecked(settings.value("designer/gridVisible", gridAction_->isChecked()).toBool());
+        setGridVisible(gridAction_->isChecked());
+    }
+    if (snapAction_)
+    {
+        snapAction_->setChecked(settings.value("designer/snapToGrid", snapAction_->isChecked()).toBool());
+        setSnapToGrid(snapAction_->isChecked());
+    }
     refreshPreview();
     statusBar()->showMessage("App settings loaded.");
 }
@@ -833,6 +873,8 @@ void MainWindow::saveAppSettings()
     settings.setValue("window/geometry", saveGeometry());
     settings.setValue("window/state", saveState());
     settings.setValue("window/activeTab", tabs_ ? tabs_->currentIndex() : 0);
+    settings.setValue("designer/gridVisible", gridAction_ ? gridAction_->isChecked() : true);
+    settings.setValue("designer/snapToGrid", snapAction_ ? snapAction_->isChecked() : false);
     settings.setValue("printer/name", QString::fromStdString(printerSettings.printerName));
     settings.setValue("printer/dpi", printerSettings.dpi);
     settings.setValue("printer/speedIps", printerSettings.speedIps);
@@ -864,6 +906,14 @@ void MainWindow::resetAppSettings()
     if (tabs_)
     {
         tabs_->setCurrentIndex(0);
+    }
+    if (gridAction_)
+    {
+        gridAction_->setChecked(true);
+    }
+    if (snapAction_)
+    {
+        snapAction_->setChecked(false);
     }
     statusBar()->showMessage("App settings reset to defaults.");
 }

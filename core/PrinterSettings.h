@@ -23,7 +23,7 @@ struct PrinterSettings
     int speedIps = 4;
     int copies = 1;
     MediaSensingMode mediaSensing = MediaSensingMode::Gap;
-    LabelOrientation orientation = LabelOrientation::Portrait;
+    LabelOrientation orientation = LabelOrientation::Landscape;
 
     double labelWidthInches = 2.25;
     double labelHeightInches = 0.75;

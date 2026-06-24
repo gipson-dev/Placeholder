@@ -58,7 +58,7 @@ LabelPrinterApp/
 ## UI Classes
 
 - `MainWindow` wires menus, toolbars, tab pages, template actions, printer settings, stock presets, persistent app settings, database printing, and raw print commands.
-- `PreviewWidget` paints the classic designer canvas with rulers, grid, label boundary, printable margin, text/barcode/QR previews, selection handles, cursor coordinates, and drag-to-move positioning. Locked elements cannot be dragged.
+- `PreviewWidget` paints the classic designer canvas with rulers, optional grid, label boundary, printable margin, text/barcode/QR previews, selection handles, cursor coordinates, drag-to-move positioning, and optional 0.25 inch snap-to-grid movement. Locked elements cannot be dragged.
 - `ElementEditorWidget` is the right-side `Element Property Editor`. Its section buttons are true filtered pages:
   - `Text`: name, type, and element text
   - `Formatting`: font size, width, bold, italic, underline, wrap, auto-fit, max lines, and alignment
@@ -73,7 +73,7 @@ LabelPrinterApp/
 The Design tab uses a classic label-designer layout:
 
 - Left readable toolbox: Select, Text, Number, Barcode, QR Code, Date/Time, Serial #, Line, Box, and Image.
-- Center preview canvas with rulers, grid, printable margin, and selection handles.
+- Center preview canvas with rulers, optional grid, printable margin, and selection handles.
 - Right `Element Property Editor` with filtered property pages.
 - Bottom layout toolbar:
   - Align left, center, right, top, middle, and bottom
@@ -85,7 +85,7 @@ The Design tab uses a classic label-designer layout:
 
 The main window uses Qt `QSettings` with the `LabelPrinterApp/LabelPrinterApp` organization/application keys. Settings are loaded after the default template and printer list are initialized, saved automatically on close, and can be saved or reset from the Preferences menu and Settings tab.
 
-Persisted values include the window geometry/state, active tab, selected printer, DPI, stock preset, label dimensions, margins, gap, media sensing, orientation, print method, core size, speed, darkness, and copies. Template layout remains template-driven JSON so user label designs can still be saved and shared separately.
+Persisted values include the window geometry/state, active tab, selected printer, DPI, stock preset, label dimensions, margins, gap, media sensing, orientation, grid visibility, snap-to-grid, print method, core size, speed, darkness, and copies. Template layout remains template-driven JSON so user label designs can still be saved and shared separately.
 
 ## Version Coverage
 

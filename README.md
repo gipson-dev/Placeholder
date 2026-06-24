@@ -9,6 +9,7 @@ The app lets you design a label, preview it, fill in values, import a CSV file, 
 - Design 2.25 x 0.75 inch Zebra labels for 203 DPI or 300 DPI printers.
 - Add text, Code 128 barcodes, Code 39 barcodes, and QR codes.
 - Move label items by dragging them in the preview.
+- Show or hide the design grid and enable snap-to-grid placement from the toolbar.
 - Work in focused tabs for Design, Elements, Data, Print, Templates, and Settings.
 - Edit font size from a preset dropdown, plus bold, italic, underline, rotation, alignment, wrapping, margins, gap, darkness, speed, and copies.
 - Use placeholders like `{ItemNumber}`, `{Lot}`, `{Date}`, `{Time}`, `{Serial}`, and `{RecordIndex}`.
@@ -23,7 +24,7 @@ The app lets you design a label, preview it, fill in values, import a CSV file, 
 2. Make sure the printer is set up for ZPL printing.
 3. Open LabelPrinterApp.
 4. Open the Settings tab and select your Zebra printer from the Default Printer list. Click `Refresh` if it was just plugged in or installed.
-5. Pick a Label Stock preset, such as `Uline S-8599 - 2.25" x 0.75" Direct Thermal`.
+5. Pick a Label Stock preset, such as `Uline S-8599 - 2.25" x 0.75" Direct Thermal`. Landscape is the default orientation.
 6. Click `Save Settings` if you want this printer and stock setup to load automatically next time.
 7. Edit the label fields or drag items in the preview.
 8. Print one test label before printing a batch.
@@ -37,6 +38,7 @@ Saved settings include:
 - Window size, position, splitter layout, and active tab
 - Default printer
 - Label stock preset, width, height, margins, gap, media sensing, orientation, and DPI
+- Designer grid visibility and snap-to-grid toggle
 - Print method, core size, speed, darkness, and copies
 
 Use `Preferences > Reset App Settings` or `Reset Defaults` in the Settings tab to clear saved app settings and return to the bundled default label setup.

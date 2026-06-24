@@ -15,6 +15,8 @@ public:
     void setTemplate(const LabelTemplate& labelTemplate);
     void setVariables(const VariableContext& context);
     void setSelectedElement(int index);
+    void setGridVisible(bool visible);
+    void setSnapToGrid(bool enabled);
 
 signals:
     void elementSelected(int index);
@@ -42,5 +44,7 @@ private:
     VariableContext variables_;
     int selectedElement_ = -1;
     int draggingElement_ = -1;
+    bool gridVisible_ = true;
+    bool snapToGrid_ = false;
     QPointF dragOffsetInches_;
 };

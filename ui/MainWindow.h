@@ -10,6 +10,7 @@
 class QComboBox;
 class QCloseEvent;
 class QDoubleSpinBox;
+class QAction;
 class QLabel;
 class QLineEdit;
 class QListWidget;
@@ -45,6 +46,8 @@ private:
     void applyStockPreset(int index);
     void updateCalculatedSizeLabels();
     void updateStatusSummary();
+    void setGridVisible(bool visible);
+    void setSnapToGrid(bool enabled);
     void loadAppSettings();
     void saveAppSettings();
     void resetAppSettings();
@@ -118,6 +121,8 @@ private:
     QSpinBox* serialStartSpin_ = nullptr;
     QSpinBox* serialEndSpin_ = nullptr;
     ExcelRecordsWidget* excelRecords_ = nullptr;
+    QAction* gridAction_ = nullptr;
+    QAction* snapAction_ = nullptr;
     QLabel* statusPositionLabel_ = nullptr;
     QLabel* statusStockLabel_ = nullptr;
     QLabel* statusDpiLabel_ = nullptr;

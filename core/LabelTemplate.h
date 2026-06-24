@@ -19,6 +19,7 @@ struct LabelTemplate
         label.settings.labelWidthInches = 2.25;
         label.settings.labelHeightInches = 0.75;
         label.settings.gapInches = 0.125;
+        label.settings.orientation = LabelOrientation::Landscape;
 
         LabelElement item;
         item.id = "item_text";

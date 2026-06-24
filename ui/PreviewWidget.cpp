@@ -138,6 +138,17 @@ void PreviewWidget::setSelectedElement(int index)
     update();
 }
 
+void PreviewWidget::setGridVisible(bool visible)
+{
+    gridVisible_ = visible;
+    update();
+}
+
+void PreviewWidget::setSnapToGrid(bool enabled)
+{
+    snapToGrid_ = enabled;
+}
+
 void PreviewWidget::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -177,7 +188,10 @@ void PreviewWidget::paintEvent(QPaintEvent*)
     painter.setPen(QPen(QColor(40, 40, 40), 1, Qt::DashLine));
     painter.setBrush(Qt::NoBrush);
     painter.drawRoundedRect(label.adjusted(8, 8, -8, -8), 4, 4);
-    drawGrid(painter, label);
+    if (gridVisible_)
+    {
+        drawGrid(painter, label);
+    }
 
     if (template_.elements.empty())
     {
@@ -247,8 +261,16 @@ void PreviewWidget::mouseMoveEvent(QMouseEvent* event)
 
     QPointF labelPoint = widgetToLabel(event->position(), label) - dragOffsetInches_;
     LabelElement& element = template_.elements[draggingElement_];
-    element.xInches = std::max(0.0, labelPoint.x());
-    element.yInches = std::max(0.0, labelPoint.y());
+    double xInches = std::max(0.0, labelPoint.x());
+    double yInches = std::max(0.0, labelPoint.y());
+    if (snapToGrid_)
+    {
+        constexpr double gridStep = 0.25;
+        xInches = std::round(xInches / gridStep) * gridStep;
+        yInches = std::round(yInches / gridStep) * gridStep;
+    }
+    element.xInches = xInches;
+    element.yInches = yInches;
     emit elementMoved(draggingElement_, element.xInches, element.yInches);
     update();
 }

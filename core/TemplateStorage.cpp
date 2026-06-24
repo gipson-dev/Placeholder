@@ -190,7 +190,7 @@ LabelTemplate TemplateStorage::load(const std::string& path)
         t.settings.marginTopInches = settings.value("marginTopInches", 0.0);
         t.settings.gapInches = settings.value("gapInches", 0.125);
         t.settings.mediaSensing = mediaFromString(settings.value("mediaSensing", "Gap"));
-        t.settings.orientation = settings.value("orientation", "Portrait") == "Landscape" ? LabelOrientation::Landscape : LabelOrientation::Portrait;
+        t.settings.orientation = settings.value("orientation", "Landscape") == "Portrait" ? LabelOrientation::Portrait : LabelOrientation::Landscape;
 
         for (const auto& item : j.value("elements", json::array()))
         {

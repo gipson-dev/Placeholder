@@ -37,7 +37,7 @@ LabelPrinterApp now uses a classic LabelDirect/ZebraDesigner-style desktop layou
 - `QTabWidget`: workflow pages for Design, Elements, Data, Templates, Print, and Settings.
 - `QSplitter`: movable left toolbox, center designer, and right property editor sections.
 - `QFrame`: classic framed left toolbox and right property panel.
-- `PreviewWidget`: custom painter for rulers, canvas, grid, label outline, printable margin, elements, and selection handles.
+- `PreviewWidget`: custom painter for rulers, canvas, optional grid, label outline, printable margin, elements, and selection handles.
 - `ElementEditorWidget`: filtered property pages for Text, Formatting, Position, Data, Barcode, and Print.
 - `ExcelRecordsWidget`: editable records table for CSV and `.xlsx` database printing.
 
@@ -71,6 +71,8 @@ The filtered page design prevents the old long property list from making the pag
 
 - Click elements in the preview to select them.
 - Drag unlocked elements to move them.
+- Use the `Grid` toolbar button to show or hide the design grid.
+- Use the `Snap` toolbar button to snap dragged elements to the 0.25 inch design grid.
 - Locked elements remain selectable but do not drag.
 - The status bar shows cursor position, label size, DPI/dot size, and zoom.
 - The bottom layout toolbar applies to the selected element:
@@ -79,7 +81,7 @@ The filtered page design prevents the old long property list from making the pag
   - Bring forward/send backward for layer order
   - Lock/unlock
 - Toolbar layout actions mirror the bottom toolbar where practical.
-- Preferences and Settings actions can save the current app setup or reset saved app settings. Startup reloads the saved printer, stock, DPI, label setup, active tab, and window layout.
+- Preferences and Settings actions can save the current app setup or reset saved app settings. Startup reloads the saved printer, stock, DPI, label setup, grid/snap toggles, active tab, and window layout.
 
 ## Stock And Preview Notes
 
