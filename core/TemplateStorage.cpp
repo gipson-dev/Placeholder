@@ -196,7 +196,7 @@ LabelTemplate TemplateStorage::load(const std::string& path)
         {
             t.elements.push_back(elementFromJson(item));
         }
-        return t.elements.empty() ? LabelTemplate::defaultTemplate() : t;
+        return t;
     }
     catch (const std::exception&)
     {

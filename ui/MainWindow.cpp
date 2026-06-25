@@ -102,6 +102,9 @@ void MainWindow::buildUi()
         "QToolButton:hover, QPushButton:hover { background: #e2eefc; }"
         "QPushButton { background: #efefef; border: 1px solid #9f9f9f; padding: 3px 7px; }"
         "QPushButton#ToolboxButton { text-align: left; padding-left: 8px; min-height: 25px; }"
+        "QLabel#ToolboxSectionLabel, QLabel#ToolbarSectionLabel { color: #333333; font-weight: 600; padding: 3px 4px; }"
+        "QLabel#ToolboxSectionLabel { border-bottom: 1px solid #b8b8b8; margin-bottom: 3px; }"
+        "QLabel#ToolbarSectionLabel { min-width: 78px; }"
         "QPushButton#InspectorTabButton { text-align: center; padding: 4px 6px; min-height: 24px; }"
         "QPushButton#InspectorTabButton:checked { background: #ffffff; border: 1px solid #6f9ed6; }"
         "QGroupBox { border: 1px solid #8f8f8f; margin-top: 10px; background: #eeeeee; }"
@@ -299,6 +302,11 @@ void MainWindow::buildToolbar()
     alignToolbar->setIconSize(QSize(16, 16));
     alignToolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     addToolBar(Qt::BottomToolBarArea, alignToolbar);
+    auto* layoutToolsLabel = new QLabel("Layout Tools", alignToolbar);
+    layoutToolsLabel->setObjectName("ToolbarSectionLabel");
+    layoutToolsLabel->setToolTip("Alignment, spacing, layer order, and lock controls");
+    alignToolbar->addWidget(layoutToolsLabel);
+    alignToolbar->addSeparator();
     alignToolbar->addAction("Align left", this, &MainWindow::alignSelectedLeft);
     alignToolbar->addAction("Align center", this, &MainWindow::alignSelectedCenter);
     alignToolbar->addAction("Align right", this, &MainWindow::alignSelectedRight);
@@ -330,6 +338,10 @@ QWidget* MainWindow::buildDesignTab()
     auto* toolboxLayout = new QVBoxLayout(toolbox);
     toolboxLayout->setContentsMargins(6, 8, 6, 8);
     toolboxLayout->setSpacing(5);
+    auto* toolboxTitle = new QLabel("Tool Palette", toolbox);
+    toolboxTitle->setObjectName("ToolboxSectionLabel");
+    toolboxTitle->setToolTip("Add or select label design elements");
+    toolboxLayout->addWidget(toolboxTitle);
     auto addToolButton = [this, toolboxLayout](const QString& text, const QString& tip, LabelElementType type) {
         auto* button = new QPushButton(text, this);
         button->setObjectName("ToolboxButton");

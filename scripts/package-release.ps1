@@ -142,7 +142,11 @@ SourceFiles0=$installerWorkSed
 %FILE1%=
 "@
     Set-Content -Path $sedPath -Value $sed
-    $process = Start-Process -FilePath $iexpress.Source -ArgumentList @("/N", $sedPath) -Wait -PassThru
+    $process = Start-Process -FilePath $iexpress.Source -ArgumentList @("/N", "/Q", $sedPath) -PassThru
+    if (!$process.WaitForExit(120000)) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        throw "iexpress.exe timed out while creating LabelPrinterApp_Setup.exe."
+    }
     if ($process.ExitCode -ne 0) {
         throw "iexpress.exe failed with exit code $($process.ExitCode)."
     }

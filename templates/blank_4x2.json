@@ -1,13 +1,13 @@
 {
-  "name": "Blank 2.25 x 0.75",
+  "name": "Blank 4 x 2",
   "settings": {
     "printerName": "",
     "dpi": 203,
     "darkness": 15,
     "speedIps": 4,
     "copies": 1,
-    "labelWidthInches": 2.25,
-    "labelHeightInches": 0.75,
+    "labelWidthInches": 4.0,
+    "labelHeightInches": 2.0,
     "marginLeftInches": 0.0,
     "marginTopInches": 0.0,
     "gapInches": 0.125,

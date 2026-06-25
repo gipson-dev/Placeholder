@@ -159,7 +159,7 @@ The setup EXE is a beta convenience wrapper around the portable ZIP.
 3. Choose a stock preset such as `Uline S-8599 - 2.25" x 0.75" Direct Thermal`.
 4. Match the DPI to the printer, usually 203 or 300.
 5. Use `Print Test Label` first.
-6. Load `examples\sample_items.csv` or `examples\excel_records_sample.csv` from the Data tab for variable database printing. These sample files use `TEST-001`, `Test description`, and related test values.
+6. Load `examples\sample_items.csv` or `examples\excel_records_sample.csv` from the Data tab for variable database printing, then add template fields that use those CSV headers.
 7. Print one label and verify alignment before printing a batch.
 
 For 2.25 x 0.75 stock, expected dot sizes are `457 x 152` at 203 DPI and `675 x 225` at 300 DPI.

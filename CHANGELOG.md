@@ -2,6 +2,8 @@
 
 ## 2026-06-22
 
+- Added visible `Tool Palette` and `Layout Tools` section labels to clarify the left design tools and bottom layout toolbar.
+- Changed bundled templates to blank starting templates for 2.25 x 0.75 and 4 x 2 label stock.
 - Added `docs/MANUAL_QA_CHECKLIST.md` and `docs/PRINTER_CALIBRATION.md`.
 - Added persistent CSV print history at `logs\print_history.csv` for successful and failed print jobs.
 - Updated packaging to create `LabelPrinterApp_Portable.zip` and a beta `LabelPrinterApp_Setup.exe` when `iexpress.exe` is available.

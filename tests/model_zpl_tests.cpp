@@ -20,6 +20,35 @@ namespace
         label.settings.mediaSensing = MediaSensingMode::BlackMark;
         label.settings.orientation = LabelOrientation::Landscape;
 
+        LabelElement item;
+        item.id = "item_text";
+        item.name = "Item Number";
+        item.type = LabelElementType::Text;
+        item.source = FieldSource::Variable;
+        item.text = "{ItemNumber}";
+        item.variableName = "ItemNumber";
+        item.xInches = 0.07;
+        item.yInches = 0.04;
+        item.boxWidthInches = 2.0;
+        item.fontHeightDots = 28;
+        item.fontWidthDots = 24;
+        item.bold = true;
+        label.elements.push_back(item);
+
+        LabelElement code128;
+        code128.id = "item_barcode";
+        code128.name = "Code 128";
+        code128.type = LabelElementType::Code128Barcode;
+        code128.source = FieldSource::Variable;
+        code128.text = "{ItemNumber}";
+        code128.variableName = "ItemNumber";
+        code128.xInches = 0.12;
+        code128.yInches = 0.34;
+        code128.barcodeHeightDots = 48;
+        code128.barcodeModuleWidth = 2;
+        code128.humanReadable = true;
+        label.elements.push_back(code128);
+
         LabelElement code39;
         code39.id = "code39";
         code39.name = "Code 39";
@@ -118,6 +147,11 @@ namespace
         label.settings.dpi = 300;
         label.settings.mediaSensing = MediaSensingMode::Continuous;
         label.settings.orientation = LabelOrientation::Landscape;
+        LabelElement element;
+        element.id = "round_trip_text";
+        element.name = "Round Trip Text";
+        element.text = "Round Trip";
+        label.elements.push_back(element);
         label.elements[0].alignment = TextAlignment::Center;
         label.elements[0].wrap = true;
         label.elements[0].maxLines = 2;
@@ -142,7 +176,7 @@ namespace
     void MissingOrInvalidTemplatesFallBackToDefault()
     {
         const LabelTemplate missing = TemplateStorage::load("missing-template-for-test.json");
-        assert(!missing.elements.empty());
+        assert(missing.elements.empty());
 
         const std::filesystem::path path = std::filesystem::temp_directory_path() / "bad_label_printer_template_test.json";
         {
@@ -152,7 +186,7 @@ namespace
 
         const LabelTemplate invalid = TemplateStorage::load(path.string());
         std::filesystem::remove(path);
-        assert(!invalid.elements.empty());
+        assert(invalid.elements.empty());
     }
 }
 

@@ -103,16 +103,16 @@ ITEM {ItemNumber}
 {ItemNumber}|{Lot}|{Date}
 ```
 
-## Default Label
+## Default Templates
 
 The default template is [templates/default_label.json](templates/default_label.json). It includes:
 
-- A title with `TEST LABEL`
-- A description field with `Test description`
-- A Code 128 barcode encoding `TEST-001`
-- A QR code with test label data
+- Blank 2.25 x 0.75 inch label stock
+- Landscape orientation
+- 203 DPI defaults
+- No prefilled text, barcode, or QR elements
 
-The `templates/` folder includes two template sets: one for 2.25 x 0.75 inch labels and one for Zebra ZD620-style 4 x 2 inch labels. Open the `Templates` tab and double-click a template to load it. The bundled barcode templates use test values such as `TEST-001`, `TEST-002`, and `TEST-003` so sample prints are clearly marked as test labels.
+The `templates/` folder includes blank starting templates for 2.25 x 0.75 inch labels and Zebra ZD620-style 4 x 2 inch labels. Open the `Templates` tab and double-click a blank template to load it, then add text, barcode, or QR elements as needed.
 
 ## Building From Source
 

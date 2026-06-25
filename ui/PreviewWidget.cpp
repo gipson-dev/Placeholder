@@ -195,16 +195,6 @@ void PreviewWidget::paintEvent(QPaintEvent*)
 
     if (template_.elements.empty())
     {
-        LabelElement sample;
-        sample.name = "Preview Text";
-        sample.text = "Sample Text";
-        sample.xInches = 0.18;
-        sample.yInches = 0.12;
-        sample.boxWidthInches = 1.8;
-        sample.fontHeightDots = 64;
-        sample.fontWidthDots = 48;
-        sample.bold = true;
-        drawTextElement(painter, sample, label, true);
         return;
     }
 

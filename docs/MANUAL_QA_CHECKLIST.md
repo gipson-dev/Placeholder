@@ -19,9 +19,9 @@ Use this checklist before tagging or publishing a beta/release build.
 ## Template Workflow
 
 - [ ] Open the Templates tab.
-- [ ] Load a 2.25 x 0.75 test template.
+- [ ] Load a 2.25 x 0.75 blank template.
 - [ ] Confirm the preview updates.
-- [ ] Load a 4 x 2 test template.
+- [ ] Load a 4 x 2 blank template.
 - [ ] Confirm the label size and preview update.
 - [ ] Save the current template.
 - [ ] Reload the saved template.
@@ -58,7 +58,7 @@ Use this checklist before tagging or publishing a beta/release build.
 - [ ] Confirm all rows print.
 - [ ] Confirm the `Quantity` column prints multiple copies when enabled.
 - [ ] Click `Preview ZPL`.
-- [ ] Confirm ZPL opens and uses the selected template and test values.
+- [ ] Confirm ZPL opens and uses the selected template and entered QA values.
 - [ ] Click `Print Test Label`.
 - [ ] Confirm one test label prints.
 - [ ] Confirm `logs\print_history.csv` is created or updated.
