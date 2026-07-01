@@ -32,6 +32,7 @@ The toolbar and menus include common editor commands:
 - `Cut`, `Copy`, and `Paste` for selected elements.
 - `Undo` and `Redo` for common design changes.
 - `Zoom In`, `Zoom Out`, and `Fit` for the design canvas.
+- `View > Print History` opens the print history viewer. See [Print History](#print-history) below.
 - `Help` opens this user guide when it is available in the packaged docs folder.
 - `Help > Check for Updates` checks for a newer LabelPrinterApp release, downloads and verifies it, and offers to restart into it. See [Check For Updates](#check-for-updates) below.
 
@@ -109,7 +110,16 @@ If the app warns that the template is blank, add at least one printable text, ba
 4. Adjust darkness and speed if print quality is too light, heavy, or blurry.
 5. Print the full selected batch only after the test label is correct.
 
-Print results are logged to `logs\print_history.csv`.
+Print results are logged to `logs\print_history.csv`. Open `View > Print History` to review them without leaving the app; see [Print History](#print-history) below.
+
+## Print History
+
+Open `View > Print History` to see past print jobs without opening the CSV file directly.
+
+- Jobs are listed most-recent-first, with `Timestamp`, `Printer`, `Template`, `Mode`, `Rows`, `Copies`, `Success`, and `Message` columns.
+- Successful jobs are shown in green; failed jobs (such as a missing printer) are shown in red.
+- Click `Refresh` to reload the list after printing more labels while the dialog is open.
+- The viewer is read-only. Exporting, clearing, and reprinting a job directly from history are not available yet.
 
 ## Check For Updates
 

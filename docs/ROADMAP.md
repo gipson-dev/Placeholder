@@ -18,7 +18,7 @@ The current application covers the requested Version 1 through Version 5 feature
 | Self-updating releases | Complete | `Help > Check for Updates` and a silent startup check ask GitHub releases for `gipson-dev/LabelPrinterApp`, download and verify newer `LabelPrinterApp_Portable.zip` builds in the background, and hand off to `LabelPrinterAppLauncher.exe` to apply the update and relaunch, retaining `templates\` and `logs\`. |
 | Developer setup | Beta-ready | CMake/Qt build path is documented and VS Code C/C++ IntelliSense resolves fetched `nlohmann/json.hpp` after configure/build. |
 | Testing and calibration | In progress | Automated core tests exist; physical printer calibration and clean-machine manual QA remain. |
-| Production polish | In progress | Image/logo support, print history viewer, installer polish, version display, and final calibration controls remain. |
+| Production polish | In progress | Image/logo support, installer polish, version display, final calibration controls, and print history viewer enhancements (export, clear, reprint) remain. |
 
 ## Phase Roadmap
 
@@ -36,7 +36,7 @@ The current application covers the requested Version 1 through Version 5 feature
 | 10 | Template manager | Complete | Template tab loads bundled JSON templates and supports saving/loading user templates. |
 | 11 | Printer and stock settings | Complete | Installed-printer selector, refresh, DPI, dimensions, margins, gap, sensing mode, orientation, speed, darkness, copies, and stock presets. |
 | 12 | Error handling and status feedback | Complete for foundation | Save errors, print errors, missing-printer validation, template fallback handling, status-bar messages, and basic success/failure reporting. |
-| 13 | Print history | Complete for foundation | Persistent CSV print history logs successful and failed jobs to `logs\print_history.csv`. |
+| 13 | Print history | Complete for foundation | Persistent CSV print history logs successful and failed jobs to `logs\print_history.csv`, viewable in-app from `View > Print History`. Export, clear, and reprint-from-history remain as to-do items. |
 | 14 | Batch printing | Complete | Copies, serial ranges, checked Excel/CSV rows, all rows, row ranges, quantity-per-row printing, placeholder mapping, and standard `Number`/`Description` fields. |
 | 15 | Advanced formatting | Complete for foundation | Font size dropdown, font width, regular default text weight, optional bold/italic/underline, rotation, alignment, wrapping, multi-line, fixed/variable text, live date/time fields, prefix/suffix, and auto-fit metadata. |
 | 16 | Drag-and-drop designer | Complete | Drag-to-move, drag-marquee multi-select, Ctrl-click selection toggles, group dragging, resize handles, layer order, align tools, equal spacing, snap/grid toggles, cut/copy/paste, undo/redo, zoom in/out/fit, lock/unlock, and inline text editing. |
@@ -68,13 +68,14 @@ The current application covers the requested Version 1 through Version 5 feature
 - VS Code C/C++ IntelliSense include paths for fetched `nlohmann/json.hpp` in the local build folders.
 - Self-updating releases: a startup check plus `Help > Check for Updates` download and verify newer GitHub releases in the background and relaunch through `LabelPrinterAppLauncher.exe` to apply them, keeping `templates\` and `logs\` intact.
 - `v1.0.0` tagged and published as a GitHub release.
+- In-app Print History viewer from `View > Print History`, reading `logs\print_history.csv` into a refreshable, most-recent-first table with color-coded success/failure.
 
 ## Immediate Next Order
 
 1. Run the manual QA checklist against the `v1.0.0` package on a clean Windows machine, including the update-check/apply/relaunch flow end to end against a real newer release.
 2. Run physical printer calibration checks on both 203 DPI and 300 DPI Zebra printers.
 3. Fix issues found during clean-machine and printer testing, especially runtime files, startup path, templates, settings, print offsets, DPI scaling, font preview differences, barcode sizing, and CSV/Excel edge cases.
-4. Add the remaining high-value production features: image/logo support, print history viewer/export, keyboard nudging, calibration offset controls, installer polish, in-app version display, screenshots, and release notes.
+4. Add the remaining high-value production features: image/logo support, print history export/clear/reprint, keyboard nudging, calibration offset controls, installer polish, in-app version display, screenshots, and release notes.
 5. Cut the next patch/point release once clean-machine and printer QA sign off.
 
 ## Recommended Version Plan
@@ -132,9 +133,10 @@ Goal: improve usability after first stable release.
 Possible features:
 
 - Image/logo support.
-- Print history viewer.
-- Export history.
+- Export print history to a new file.
+- Clear print history from within the app.
 - Reprint from history.
+- Sortable/filterable columns in the Print History viewer.
 - More calibration controls.
 - More stock presets.
 
@@ -161,7 +163,7 @@ Possible features:
 - Data import: load CSV and Excel, edit/save rows, search, print checked rows, print all rows, print ranges, print quantity per row, and verify `Number`/`Description` placeholders.
 - Printing: select Zebra printer, print one label, print copies, print checked rows, print serial ranges, and test DPI, darkness, speed, orientation, margins, and gap sensing.
 - Scan validation: scan Code 128, Code 39, and QR output and confirm encoded data matches expected values.
-- History: verify successful and failed jobs are logged to `logs\print_history.csv` and survive restart.
+- History: verify successful and failed jobs are logged to `logs\print_history.csv` and survive restart. Open `View > Print History` and confirm the table matches the CSV, refreshes after a new print, and color-codes success/failure.
 - Developer setup: open `core/TemplateStorage.cpp` in VS Code and confirm the C/C++ extension resolves `nlohmann/json.hpp` after a normal configure/build.
 - Self-update: with an older build installed, confirm the silent startup check and `Help > Check for Updates` detect a newer published GitHub release, download and apply it through `LabelPrinterAppLauncher.exe`, relaunch the app, and keep `templates\` and `logs\` intact.
 
@@ -174,7 +176,7 @@ Possible features:
 | High | 203/300 DPI validation | Prevents sizing and offset issues across printers. |
 | High | Barcode/QR scan validation | Confirms production label usability. |
 | Medium | Image/logo support | Common label-design requirement. |
-| Medium | Print history viewer | Makes history usable without opening CSV manually. |
+| Medium | Print history export/clear/reprint | The `View > Print History` viewer displays `logs\print_history.csv`; exporting, clearing, and reprinting from history are not yet implemented. |
 | Medium | Calibration offset controls | Helps correct printer/media differences. |
 | Medium | Installer | Improves setup for non-technical users. |
 | Medium | End-to-end self-update validation | Confirm the startup check, `Help > Check for Updates`, download/verify, and launcher relaunch work against a real published GitHub release, not just local builds. |

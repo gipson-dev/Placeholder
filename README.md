@@ -23,7 +23,7 @@ The app lets you design a label, preview it, fill in values, import a CSV file, 
 - Use placeholders like `{Number}`, `{Description}`, `{Date}`, `{Time}`, `{Serial}`, and `{RecordIndex}`.
 - Print one label, a serial-number range, selected CSV rows, or every CSV row.
 - Use CSV fields named `Number` and `Description` for the standard imported label data.
-- Log successful and failed print jobs to `logs\print_history.csv`.
+- Log successful and failed print jobs to `logs\print_history.csv`, and review them in-app from `View > Print History`.
 - Save and load label templates as JSON.
 - Save and reset app settings so the selected printer, stock preset, label setup, active tab, and window layout survive restarts.
 

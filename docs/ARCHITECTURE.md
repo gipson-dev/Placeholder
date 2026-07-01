@@ -71,7 +71,7 @@ LabelPrinterApp/
 
 ## UI Classes
 
-- `MainWindow` wires menus, toolbars, tab pages, template actions, printer settings, stock presets, persistent app settings, database printing, raw print commands, and the `AppUpdater`-backed self-update check (silent on startup, manual from `Help > Check for Updates`).
+- `MainWindow` wires menus, toolbars, tab pages, template actions, printer settings, stock presets, persistent app settings, database printing, raw print commands, the `AppUpdater`-backed self-update check (silent on startup, manual from `Help > Check for Updates`), and the `View > Print History` viewer.
 - `PreviewWidget` paints the classic designer canvas with rulers, optional grid, label boundary, printable margin, vertically centered text, barcode/QR/shape previews, selection handles, marquee multi-selection, cursor coordinates, drag-to-move positioning, group dragging, side/corner resize handles, and optional 0.25 inch snap-to-grid movement. Barcode bounds use shared Zebra module-count sizing, and centered/right-aligned barcodes are positioned from the resolved print value so variable data stays aligned. Locked elements cannot be dragged or resized.
 - `ElementEditorWidget` is the right-side `Element Property Editor`. Its section buttons are true filtered pages:
   - `Text`: name, type, and element text
@@ -90,7 +90,7 @@ Print attempts append to `logs\print_history.csv`. The file is created automatic
 Timestamp,Printer,Template,Mode,Rows,Copies,Success,Message
 ```
 
-The first version is intentionally simple. It logs successful and failed print sends, including missing-printer failures, without adding a UI browser yet.
+It logs successful and failed print sends, including missing-printer failures. `View > Print History` opens an in-app viewer (`MainWindow::showPrintHistory`) that reads the CSV back through `CsvImporter` into a `QTableWidget`, shown most-recent-first with the `Success` column color-coded and a `Refresh` button to reload after new print jobs. The viewer is read-only; exporting, clearing, and reprinting from history are not implemented yet (see [docs/ROADMAP.md](ROADMAP.md)).
 
 ## Designer Controls
 

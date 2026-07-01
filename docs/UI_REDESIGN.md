@@ -8,7 +8,7 @@ LabelPrinterApp now uses a classic LabelDirect/ZebraDesigner-style desktop layou
 
 ```text
 +--------------------------------------------------------------------------------+
-| File Insert Edit Layout View Stock Database Printer Preferences Templates Help   |
+| File Insert Edit Layout Stock Database Printer Preferences Templates View Help   |
 +--------------------------------------------------------------------------------+
 | New Open Save Print Cut Copy Paste Undo Redo Zoom +/- Fit Text Barcode QR ...    |
 +--------------+---------------------------------------------+-------------------+
@@ -90,7 +90,7 @@ The bottom-right `Quick Print` button sends the current label to the selected pr
   - Lock/unlock
 - Toolbar layout actions mirror the bottom toolbar where practical.
 - Preferences and Settings actions can save the current app setup or reset saved app settings. Startup reloads the saved printer, stock, DPI, label setup, grid/snap toggles, active tab, and window layout.
-- Print actions append simple success/failure history to `logs\print_history.csv`.
+- Print actions append simple success/failure history to `logs\print_history.csv`, viewable in-app from `View > Print History`.
 
 ## Stock And Preview Notes
 

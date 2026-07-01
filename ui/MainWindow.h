@@ -77,6 +77,7 @@ private:
     void restoreFromHistory(const LabelTemplate& labelTemplate);
     void showHelp();
     void checkForUpdates();
+    void showPrintHistory();
     void duplicateSelectedElement();
     void deleteSelectedElement();
     void moveSelectedElement(int offset);

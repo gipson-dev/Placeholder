@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QCloseEvent>
+#include <QColor>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -19,6 +20,7 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QInputDialog>
 #include <QLabel>
 #include <QListWidget>
@@ -51,6 +53,7 @@
 
 #include "core/AppUpdater.h"
 #include "core/BarcodeMetrics.h"
+#include "core/CsvImporter.h"
 #include "core/SampleData.h"
 #include "core/TemplateStorage.h"
 #include "core/VariableResolver.h"
@@ -352,12 +355,6 @@ void MainWindow::buildMenus()
     layout->addAction("Align Center", this, &MainWindow::alignSelectedCenter);
     layout->addAction("Align Right", this, &MainWindow::alignSelectedRight);
 
-    auto* view = menuBar()->addMenu("View");
-    view->addAction("Preview ZPL", this, &MainWindow::previewZpl);
-    view->addAction("Zoom In", this, [this] { preview_->zoomIn(); statusZoomLabel_->setText("Zoom In"); });
-    view->addAction("Zoom Out", this, [this] { preview_->zoomOut(); statusZoomLabel_->setText("Zoom Out"); });
-    view->addAction("Fit to Label", this, [this] { preview_->zoomFit(); statusZoomLabel_->setText("Zoom Fit"); });
-
     auto* stock = menuBar()->addMenu("Stock");
     stock->addAction("Label Stock Settings", this, [this] { tabs_->setCurrentIndex(5); });
 
@@ -378,6 +375,14 @@ void MainWindow::buildMenus()
     auto* templates = menuBar()->addMenu("Templates");
     templates->addAction("Load Template", this, &MainWindow::loadTemplate);
     templates->addAction("Save Template", this, &MainWindow::saveTemplate);
+
+    auto* view = menuBar()->addMenu("View");
+    view->addAction("Preview ZPL", this, &MainWindow::previewZpl);
+    view->addAction("Zoom In", this, [this] { preview_->zoomIn(); statusZoomLabel_->setText("Zoom In"); });
+    view->addAction("Zoom Out", this, [this] { preview_->zoomOut(); statusZoomLabel_->setText("Zoom Out"); });
+    view->addAction("Fit to Label", this, [this] { preview_->zoomFit(); statusZoomLabel_->setText("Zoom Fit"); });
+    view->addSeparator();
+    view->addAction("Print History", this, &MainWindow::showPrintHistory);
 
     auto* help = menuBar()->addMenu("Help");
     help->addAction("User Guide", this, &MainWindow::showHelp);
@@ -1496,6 +1501,98 @@ void MainWindow::checkForUpdates()
     updateCheckIsManual_ = true;
     statusBar()->showMessage("Checking for updates...", 4000);
     appUpdater_->checkForUpdates();
+}
+
+void MainWindow::showPrintHistory()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle("Print History");
+    dialog.resize(760, 420);
+
+    auto* layout = new QVBoxLayout(&dialog);
+
+    auto* table = new QTableWidget(&dialog);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setAlternatingRowColors(true);
+    table->verticalHeader()->setVisible(false);
+    layout->addWidget(table);
+
+    auto populate = [table] {
+        table->clear();
+        table->setRowCount(0);
+        table->setColumnCount(0);
+
+        const CsvData history = CsvImporter::loadFile("logs/print_history.csv", true);
+        if (history.headers.empty() || history.rows.empty())
+        {
+            table->setColumnCount(1);
+            table->setHorizontalHeaderLabels({ "Print History" });
+            table->setRowCount(1);
+            table->setItem(0, 0, new QTableWidgetItem(
+                "No print history yet. Print a label to create logs\\print_history.csv."));
+            table->horizontalHeader()->setStretchLastSection(true);
+            return;
+        }
+
+        const int columnCount = static_cast<int>(history.headers.size());
+        table->setColumnCount(columnCount);
+        QStringList headerLabels;
+        for (const auto& header : history.headers)
+        {
+            headerLabels << QString::fromStdString(header);
+        }
+        table->setHorizontalHeaderLabels(headerLabels);
+
+        int successColumn = -1;
+        for (int col = 0; col < columnCount; ++col)
+        {
+            if (history.headers[static_cast<std::size_t>(col)] == "Success")
+            {
+                successColumn = col;
+                break;
+            }
+        }
+
+        const int rowCount = static_cast<int>(history.rows.size());
+        table->setRowCount(rowCount);
+        for (int i = 0; i < rowCount; ++i)
+        {
+            // Most recent print job first.
+            const auto& row = history.rows[static_cast<std::size_t>(rowCount - 1 - i)];
+            for (int col = 0; col < columnCount; ++col)
+            {
+                const QString value = col < static_cast<int>(row.size())
+                    ? QString::fromStdString(row[static_cast<std::size_t>(col)])
+                    : QString();
+                auto* item = new QTableWidgetItem(value);
+                if (col == successColumn)
+                {
+                    item->setForeground(value.compare("true", Qt::CaseInsensitive) == 0
+                        ? QColor(0x1a, 0x7f, 0x1a)
+                        : QColor(0xb0, 0x00, 0x20));
+                }
+                table->setItem(i, col, item);
+            }
+        }
+        table->resizeColumnsToContents();
+        table->horizontalHeader()->setStretchLastSection(true);
+    };
+
+    populate();
+
+    auto* buttonRow = new QHBoxLayout();
+    auto* refreshButton = new QPushButton("Refresh", &dialog);
+    connect(refreshButton, &QPushButton::clicked, &dialog, populate);
+    buttonRow->addWidget(refreshButton);
+    buttonRow->addStretch();
+
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dialog);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    buttonRow->addWidget(buttons);
+    layout->addLayout(buttonRow);
+
+    dialog.exec();
 }
 
 void MainWindow::duplicateSelectedElement()

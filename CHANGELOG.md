@@ -2,6 +2,8 @@
 
 ## 2026-07-01
 
+- Added an in-app Print History viewer at `View > Print History`, reading `logs\print_history.csv` back through the existing `CsvImporter` into a refreshable, most-recent-first table with color-coded success/failure rows.
+- Moved the `View` menu (Preview ZPL, Zoom In/Out, Fit to Label) to sit immediately to the left of `Help` in the menu bar, and added the new `Print History` action to it.
 - Wired in `c-updater` for self-updating: `Help > Check for Updates` (plus a silent startup check) now checks GitHub releases for `gipson-dev/LabelPrinterApp`, downloads and verifies newer `LabelPrinterApp_Portable.zip` releases in the background, and hands off to a new `LabelPrinterAppLauncher.exe` to apply the update and relaunch on restart, retaining `templates/` and `logs/`.
 - Vendored `c-updater` (and its `nlohmann/json`, `googletest`, `minizip-ng` dependencies) as plain tracked source rather than git submodules, so CI and fresh clones build it without extra setup.
 - Bumped the project version to 1.0.0 to match the `v1.0.0` release tag and give the new update checker a comparable version number.

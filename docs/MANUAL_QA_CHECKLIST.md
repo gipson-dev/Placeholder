@@ -99,6 +99,8 @@ Use this checklist before tagging or publishing a beta/release build.
 - [ ] Confirm printed text placement is close to the canvas preview and not pinned to the top or bottom of the selected text box.
 - [ ] Confirm `logs\print_history.csv` is created or updated.
 - [ ] Confirm print history includes success/failure, printer, template, mode, rows, and copies.
+- [ ] Open `View > Print History` and confirm the table matches `logs\print_history.csv`, shows the most recent job first, and color-codes success/failure.
+- [ ] Print another test label with the Print History dialog open, click `Refresh`, and confirm the new job appears.
 
 ## Portable Package
 
