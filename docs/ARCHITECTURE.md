@@ -19,6 +19,8 @@ LabelPrinterApp/
 |   |-- ExcelImporter.h/.cpp
 |   |-- ExcelRecordSet.h
 |   |-- RecordRangeParser.h/.cpp
+|   |-- AppUpdater.h/.cpp
+|   |-- AppVersion.h.in
 |   `-- VariableResolver.h/.cpp
 |-- ui/
 |   |-- MainWindow.h/.cpp
@@ -26,6 +28,10 @@ LabelPrinterApp/
 |   |-- ElementEditorWidget.h/.cpp
 |   |-- ExcelTableModel.h/.cpp
 |   `-- ExcelRecordsWidget.h/.cpp
+|-- launcher/
+|   `-- main.cpp
+|-- c-updater/
+|   `-- (vendored update-checker library, see c-updater/README.md)
 |-- templates/
 |   |-- default_label.json
 |   |-- *_2_25x0_75.json
@@ -61,10 +67,11 @@ LabelPrinterApp/
 - `CsvImporter` parses quoted CSV data and detects headers.
 - `ExcelImporter`, `ExcelRecordSet`, `ExcelTableModel`, and `ExcelRecordsWidget` provide the editable `.xlsx`/CSV database workflow through QXlsx.
 - `RecordRangeParser` parses row ranges such as `1-*`, `1-10`, `2,4,6`, and `1-5,8`.
+- `AppUpdater` wraps `labelprinterapp::update::manager` from the vendored `c-updater` library. It checks the `gipson-dev/LabelPrinterApp` GitHub releases for a newer version, downloads and verifies it in the background, and hands off to `LabelPrinterAppLauncher.exe` to apply it and relaunch the app.
 
 ## UI Classes
 
-- `MainWindow` wires menus, toolbars, tab pages, template actions, printer settings, stock presets, persistent app settings, database printing, and raw print commands.
+- `MainWindow` wires menus, toolbars, tab pages, template actions, printer settings, stock presets, persistent app settings, database printing, raw print commands, and the `AppUpdater`-backed self-update check (silent on startup, manual from `Help > Check for Updates`).
 - `PreviewWidget` paints the classic designer canvas with rulers, optional grid, label boundary, printable margin, vertically centered text, barcode/QR/shape previews, selection handles, marquee multi-selection, cursor coordinates, drag-to-move positioning, group dragging, side/corner resize handles, and optional 0.25 inch snap-to-grid movement. Barcode bounds use shared Zebra module-count sizing, and centered/right-aligned barcodes are positioned from the resolved print value so variable data stays aligned. Locked elements cannot be dragged or resized.
 - `ElementEditorWidget` is the right-side `Element Property Editor`. Its section buttons are true filtered pages:
   - `Text`: name, type, and element text
@@ -106,6 +113,18 @@ The main window uses Qt `QSettings` with the `LabelPrinterApp/LabelPrinterApp` o
 
 Persisted values include the window geometry/state, active tab, selected printer, DPI, stock preset, label dimensions, margins, gap, media sensing, orientation, grid visibility, snap-to-grid, print method, core size, speed, darkness, and copies. Template layout remains template-driven JSON so user label designs can still be saved and shared separately.
 
+## Self-Updating Releases
+
+`AppUpdater` (`core/AppUpdater.h/.cpp`) owns a `labelprinterapp::update::manager` from the vendored [`c-updater`](../c-updater/README.md) library:
+
+- On startup, `MainWindow` waits four seconds, then runs a silent `checkForUpdates()` and reports the result on the status bar.
+- `Help > Check for Updates` runs the same check, but reports results with message boxes since the user explicitly asked for them.
+- On `updateReady`, the app asks the user whether to restart. If they accept, `applyDownloadedUpdateAndRestart()` launches `LabelPrinterAppLauncher.exe` (built from `launcher/main.cpp`) with the update working directory and the downloaded version's directory name, then the app quits.
+- `LabelPrinterAppLauncher.exe` is a small, statically linked, Qt-free executable (linked against `labelprinterapp_update_manager` only) so it has no DLL dependencies of its own and can keep running while the app directory it was launched from is replaced. It applies the downloaded update, retains the `templates` and `logs` folders via `manager::retain_installed_files`, and starts `LabelPrinterApp.exe` again.
+- If `AppUpdater::isAvailable()` is false (for example, another running instance holds the update lock), `Help > Check for Updates` instead opens the GitHub releases page for `gipson-dev/LabelPrinterApp`.
+
+`c-updater` is vendored as plain tracked source under `c-updater/`, including its `nlohmann/json`, `googletest`, and `minizip-ng` dependencies, so CI and fresh clones can build it without extra setup or submodule steps. It additionally requires OpenSSL (see [Build In Visual Studio](#build-in-visual-studio)).
+
 ## Version Coverage
 
 - Version 1: basic input, font size/width, X/Y position, copies, valid ZPL, and RAW printing.
@@ -113,18 +132,20 @@ Persisted values include the window geometry/state, active tab, selected printer
 - Version 3: Code 128, Code 39, QR, Line, Box, barcode height, module width, human-readable toggle, and shape output.
 - Version 4: placeholders, prompt-at-print values, date/time tokens, serial numbers, prefix/suffix, and serial ranges.
 - Version 5: CSV and `.xlsx` import, header mapping, record preview, selected/all row printing, Number/Description field workflow, and placeholder replacement in text/barcode/QR fields.
+- `v1.0.0`: self-updating release delivery through the vendored `c-updater` library and `LabelPrinterAppLauncher.exe`.
 
 ## Build In Visual Studio
 
 1. Install Visual Studio 2022 or newer with "Desktop development with C++".
 2. Install Qt 6 for MSVC 64-bit.
-3. Set `CMAKE_PREFIX_PATH` if Qt is not auto-detected:
+3. Install OpenSSL for the `c-updater` update checker. Windows builds auto-detect `C:\Program Files\OpenSSL-Win64` when present; otherwise pass `-DOPENSSL_ROOT_DIR=<path-to-openssl>`.
+4. Set `CMAKE_PREFIX_PATH` if Qt is not auto-detected:
 
 ```powershell
 $env:CMAKE_PREFIX_PATH = "C:\Qt\6.8.3\msvc2022_64"
 ```
 
-4. Build and test:
+5. Build and test:
 
 ```powershell
 .\scripts\build-and-test.ps1 -Config Release
@@ -162,7 +183,7 @@ Create a distributable folder:
 .\scripts\package-release.ps1 -Config Release
 ```
 
-The package is written to `dist\LabelPrinterApp`. Close any running copy of `dist\LabelPrinterApp\LabelPrinterApp.exe` before packaging so Windows can replace Qt DLLs.
+The package is written to `dist\LabelPrinterApp`, including `LabelPrinterApp.exe` and `LabelPrinterAppLauncher.exe`. The script fails fast if either executable is missing from the build output. Close any running copy of `dist\LabelPrinterApp\LabelPrinterApp.exe` before packaging so Windows can replace Qt DLLs.
 
 The package script also writes:
 

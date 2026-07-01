@@ -33,7 +33,7 @@ The toolbar and menus include common editor commands:
 - `Undo` and `Redo` for common design changes.
 - `Zoom In`, `Zoom Out`, and `Fit` for the design canvas.
 - `Help` opens this user guide when it is available in the packaged docs folder.
-- `Help > Check for Updates` opens the LabelPrinterApp releases page.
+- `Help > Check for Updates` checks for a newer LabelPrinterApp release, downloads and verifies it, and offers to restart into it. See [Check For Updates](#check-for-updates) below.
 
 The standard data fields are `Number` and `Description`.
 The Date/Time tool inserts `{DateTime}`, which resolves automatically when previewing or printing.
@@ -110,3 +110,13 @@ If the app warns that the template is blank, add at least one printable text, ba
 5. Print the full selected batch only after the test label is correct.
 
 Print results are logged to `logs\print_history.csv`.
+
+## Check For Updates
+
+LabelPrinterApp checks for newer releases automatically a few seconds after startup, and you can check manually at any time from `Help > Check for Updates`.
+
+- If you are already on the latest version, a status message confirms it (or a dialog, if you checked manually).
+- If a newer version is found, it downloads and verifies in the background. Once ready, a dialog asks whether to restart now to apply it.
+- Choosing `Yes` closes LabelPrinterApp and hands off to `LabelPrinterAppLauncher.exe`, which applies the update and relaunches LabelPrinterApp automatically. Your `templates\` and `logs\` folders are kept.
+- Choosing `No` keeps the current version running; the update is applied the next time you accept it.
+- If the update checker cannot run at all (for example, another copy of the app is holding its update lock), `Help > Check for Updates` instead opens the LabelPrinterApp GitHub releases page so you can download a release manually.

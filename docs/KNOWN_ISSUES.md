@@ -11,6 +11,8 @@ This file tracks beta-era risks and remaining work for LabelPrinterApp.
 - The print history is currently a CSV file at `logs\print_history.csv`; an in-app viewer is still planned.
 - Image/logo elements are visible in the toolbox as future work and are not implemented yet.
 - The installer is still a beta convenience package; a fuller installer may be needed for non-technical users.
+- The self-update flow (`Help > Check for Updates`, plus the silent startup check, download/verify, and `LabelPrinterAppLauncher.exe` apply/relaunch) has not yet been validated end to end against a real published GitHub release on a clean machine.
+- The update checker requires outbound HTTPS access to GitHub; there is no offline or proxy-configured fallback yet beyond opening the releases page manually.
 
 ## Developer Setup Notes
 

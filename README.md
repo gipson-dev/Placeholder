@@ -14,7 +14,7 @@ The app lets you design a label, preview it, fill in values, import a CSV file, 
 - Drag an empty canvas area to select multiple elements, then align, distribute, lock, or drag the group.
 - Double-click text elements to edit their text directly on the canvas.
 - Use Cut, Copy, Paste, Undo, Redo, Zoom In/Out/Fit, and Help from the classic toolbar/menu.
-- Open `Help > Check for Updates` to visit the LabelPrinterApp releases page.
+- Check for and self-apply app updates: `Help > Check for Updates` (and a quiet check a few seconds after startup) looks for a newer GitHub release, downloads and verifies it in the background, and offers to restart into it.
 - Preview and print text with vertical centering that more closely matches the selected text box.
 - Show or hide the design grid and enable snap-to-grid placement from the toolbar.
 - Use `Quick Print` from the Element Property Editor to print without leaving the Design tab.
@@ -169,7 +169,8 @@ Requirements:
 - Visual Studio 2022 or newer with Desktop development with C++
 - CMake 3.20 or newer
 - Qt 6 for MSVC 64-bit
-- Internet access on first configure if QXlsx has not already been fetched
+- OpenSSL, for the bundled `c-updater` update checker. Windows builds auto-detect `C:\Program Files\OpenSSL-Win64` when present; otherwise pass `-DOPENSSL_ROOT_DIR=<path-to-openssl>`.
+- Internet access on first configure if QXlsx, `c-updater`, or its vendored dependencies have not already been fetched
 
 Set `CMAKE_PREFIX_PATH` to your Qt install folder:
 
@@ -208,7 +209,7 @@ Build a distributable folder:
 .\scripts\package-release.ps1 -Config Release
 ```
 
-The package is written to `dist\LabelPrinterApp`. If `windeployqt.exe` is available, the Qt runtime files are copied automatically.
+The package is written to `dist\LabelPrinterApp`, including `LabelPrinterApp.exe` and the small `LabelPrinterAppLauncher.exe` update-apply helper. If `windeployqt.exe` is available, the Qt runtime files are copied automatically.
 
 The package script also creates beta distribution artifacts:
 
@@ -226,12 +227,19 @@ The release workflow uploads:
 - `LabelPrinterApp_Portable.zip`
 - `LabelPrinterApp_Setup.exe`
 
+These are the same GitHub releases (`gipson-dev/LabelPrinterApp`) that the in-app updater checks. The updater reads the version from the release's `v*` tag and downloads whichever release asset is named exactly `LabelPrinterApp_Portable.zip`, so keep using that literal filename for the portable ZIP.
+
 See [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) for the full release checklist.
+
+## Self-Updating
+
+`Help > Check for Updates`, plus a quiet check a few seconds after launch, asks the GitHub releases API for the latest `gipson-dev/LabelPrinterApp` release. If a newer version is found, it is downloaded and verified in the background; the app then offers to restart. Accepting hands off to `LabelPrinterAppLauncher.exe`, which applies the update while `LabelPrinterApp.exe` exits, retains the `templates\` and `logs\` folders, and relaunches the updated app. This is built on the vendored [`c-updater`](c-updater/README.md) library.
 
 ## Developer Notes
 
 - Core label logic lives in `core/`.
 - Qt UI code lives in `ui/`.
+- The self-update checker (`core/AppUpdater.h/.cpp`) wraps the vendored [c-updater](c-updater/README.md) library; the update-apply helper lives in `launcher/main.cpp` and builds as `LabelPrinterAppLauncher.exe`.
 - Example generated ZPL is in [docs/example_generated.zpl](docs/example_generated.zpl).
 - Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - Classic UI redesign notes are in [docs/UI_REDESIGN.md](docs/UI_REDESIGN.md).

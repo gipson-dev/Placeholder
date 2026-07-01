@@ -9,7 +9,9 @@ The packaged release contains:
 - `LabelPrinterApp_Portable.zip`
 - `LabelPrinterApp_Setup.exe`
 
-The portable ZIP contains the app, Qt runtime files, blank templates, examples, docs, and an initial print-history file.
+The portable ZIP contains `LabelPrinterApp.exe`, `LabelPrinterAppLauncher.exe`, Qt runtime files, blank templates, examples, docs, and an initial print-history file.
+
+These are also the releases that LabelPrinterApp's in-app updater (`Help > Check for Updates` and the silent startup check) looks for at `gipson-dev/LabelPrinterApp`. The updater reads the version from the `v*` tag and only recognizes an asset named exactly `LabelPrinterApp_Portable.zip`, so keep both conventions unchanged.
 
 ## Local Preflight
 
@@ -29,9 +31,10 @@ Before tagging a release:
 ```
 
 4. Open `dist\LabelPrinterApp\LabelPrinterApp.exe`.
-5. Run the manual checks in `docs\MANUAL_QA_CHECKLIST.md`.
+5. Run the manual checks in `docs\MANUAL_QA_CHECKLIST.md`, including the `Check for Updates` flow against the currently-latest published GitHub release.
 6. Review `docs\KNOWN_ISSUES.md` and update it with any new release-specific limitations.
 7. In VS Code, open `core\TemplateStorage.cpp` and confirm C/C++ IntelliSense resolves `nlohmann/json.hpp` after configure/build.
+8. Bump the project version in the root `CMakeLists.txt` (`project(LabelPrinterApp VERSION ...)`) to match the tag you are about to push, so the update checker can compare versions correctly.
 
 ## Publish A Beta Release
 
@@ -62,6 +65,7 @@ After the workflow completes:
    - `LabelPrinterApp_Setup.exe`
 4. Download and run the portable ZIP on a clean Windows folder.
 5. Run the setup EXE on a test machine or VM.
+6. From an older installed build, run `Help > Check for Updates` and confirm it finds this release, downloads and verifies it, and offers to restart; confirm the restart applies the update through `LabelPrinterAppLauncher.exe` and keeps `templates\` and `logs\` intact.
 
 ## Current Beta Scope
 
@@ -79,3 +83,4 @@ The current beta includes:
 - Zebra RAW ZPL printing through Windows printers.
 - Persistent app settings and print history.
 - VS Code C/C++ include paths for fetched `nlohmann/json.hpp` so local developer squiggles match the CMake build.
+- Self-updating releases: a silent startup check and `Help > Check for Updates` download and verify newer GitHub releases and apply them through `LabelPrinterAppLauncher.exe` on restart.

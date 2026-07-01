@@ -60,7 +60,7 @@ Use this checklist before tagging or publishing a beta/release build.
 - [ ] Use Copy, Paste, Cut, Undo, and Redo from the toolbar/menu.
 - [ ] Use Zoom In, Zoom Out, and Fit.
 - [ ] Click Help and confirm the user guide opens or a fallback message appears.
-- [ ] Click `Help > Check for Updates` and confirm the releases page opens or a fallback message appears.
+- [ ] Click `Help > Check for Updates` and confirm it reports up to date, reports a downloaded update, reports a check failure, or falls back to opening the releases page, as appropriate. See the `Self-Update` section below for the full flow.
 - [ ] Move elements by dragging in the preview.
 - [ ] Drag a marquee around multiple elements and confirm each selected element shows a selection frame.
 - [ ] Ctrl-click an element and confirm it toggles in or out of the multi-selection.
@@ -107,6 +107,18 @@ Use this checklist before tagging or publishing a beta/release build.
 - [ ] Confirm templates, examples, docs, and Qt runtime files are present.
 - [ ] Confirm a template can be loaded from the USB folder.
 - [ ] Confirm app settings can be saved and reset.
+
+## Self-Update
+
+- [ ] Install an older build of `LabelPrinterApp_Portable.zip` in its own folder.
+- [ ] Launch it and confirm a status-bar message reports the update result a few seconds after startup (up to date, downloaded, or check failed).
+- [ ] With a newer release already published, confirm the silent startup check reports a downloaded update and offers to restart.
+- [ ] Click `Yes` to restart and confirm `LabelPrinterAppLauncher.exe` applies the update and relaunches `LabelPrinterApp.exe`.
+- [ ] Confirm `templates\` and `logs\` (including `logs\print_history.csv`) survive the update.
+- [ ] Confirm the relaunched app reports the new version as up to date when checked again.
+- [ ] Click `No` on the restart prompt and confirm the app keeps running on the current version.
+- [ ] Use `Help > Check for Updates` manually and confirm results are reported with a dialog instead of a status-bar message.
+- [ ] Disconnect network access and confirm a failed check reports an understandable error instead of crashing.
 
 ## Beta Artifacts
 
